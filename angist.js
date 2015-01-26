@@ -6,7 +6,6 @@
 // Requirements
 // =============================================================================
 var http    = require('http');
-var jade    = require('jade');
 var utils   = require('./utils');
 var express = require('express');
 var socket  = require('socket.io');
@@ -35,7 +34,7 @@ app.use(express.static(__dirname + '/public'));
 
 // Makeshift user mgmt
 var users = {};
-numUsers = 0;
+var numUsers = 0;
 
 
 
@@ -88,7 +87,7 @@ io.sockets.on('connection', function(socket) {
                    numUsers : numUsers},
                   socket.id);
         }
-    });
+    );
 
     // Broadcast when user starts typing
     socket.on('startTyping', function() {
@@ -112,7 +111,7 @@ io.sockets.on('connection', function(socket) {
         });
         socket.broadcast.emit('stopTyping', {username: socket.username});
 
-        console.log(date + "| " socket.username + "> " + message);
+        console.log(date + "| " + socket.username + "> " + message);
     });
 
     socket.on('disconnect', function() {
