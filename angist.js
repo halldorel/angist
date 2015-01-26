@@ -88,6 +88,10 @@ io.sockets.on('connection', function(socket) {
                   socket.id);
         }
     );
+    
+    setInterval(function () {
+      socket.emit("message", {x: Math.random()*600, y:Math.random()*400});
+    }, 1000);
 
     // Broadcast when user starts typing
     socket.on('startTyping', function() {
