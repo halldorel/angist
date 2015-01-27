@@ -43,7 +43,7 @@ server.listen(port);
 
 // Connection
 // =============================================================================
-io.sockets.on('connection', function(socket) {
+io.on('connection', function(socket) {
 
     var loggedIn = false;
     socket.isConnectionDropped = function() {
@@ -97,7 +97,7 @@ io.sockets.on('connection', function(socket) {
         if (!point) return;
         // TODO:
         // Change to broadcast:
-        socket.emit('newPoint', {
+        io.emit('newPoint', {
             x: point.x,
             y: point.y
         });
