@@ -89,14 +89,32 @@ io.sockets.on('connection', function(socket) {
         }
     );
     
-    setInterval(function () {
-      socket.emit("message", {x: Math.random()*600, y:Math.random()*400});
-    }, 1000);
+    //setInterval(function () {
+    //  socket.broadcast.emit("message", {x: Math.random()*600, y:Math.random()*400});
+    //}, 1000);
+
+    socket.on('newPoint', function(point) {
+        if (!point) return;
+        // TODO:
+        // Change to broadcast:
+        socket.emit('newPoint', {
+            x: point.x,
+            y: point.y
+        });
+        //socket.emit("newPoint", {
+        //    x: Math.random()*600,
+        //    y: Math.random()*400
+        //});
+    });
+
+    socket.on('stopDrawing', function(path) {
+
+    });
 
     // Broadcast when user starts typing
     socket.on('startTyping', function() {
         if (socket.isConnectionDropped()) return;
-        echoToAll('startTyping', {username: socket.username}, socket.id);
+        socket.broadcast.emit('startTyping', {username: socket.username});
     });
 
     socket.on('stopTyping', function() {
