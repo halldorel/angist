@@ -15,19 +15,15 @@ var currentPath = [];
 
 socket.on("beginPath", function(data) {
     currentPath.push(data);
-    console.log("beginPath: ", data);
 });
 
 socket.on("newPoint", function(data) {
     currentPath.push(data);
-    console.log("newPath: ", currentPath);
 });
 
 socket.on("closePath", function (data) {
     currentPath.push(data);
     paths.push(currentPath);
-
-    console.log("endPath: ", currentPath);
     currentPath = [];
 });
 
