@@ -1,60 +1,87 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
-var rotate = 0;
+// Use this dictionary for server event names 
+var events = {
+    newPoint  : 'newPoint',
+    beginPath : 'beginPath',
+    closePath : 'closePath'
+};
 
 var socket = io.connect('', {secure: true});
 
-var x = 0, y = 0;
+var paths = [];
+var currentPath = [];
 
+socket.on("beginPath", function(data) {
+    currentPath.push(data);
+    console.log("beginPath: ", data);
+});
 
 socket.on("newPoint", function(data) {
-    x = data.x;
-    y = data.y;
-    console.log(x, y);
-    render();
+    currentPath.push(data);
+    console.log("newPath: ", currentPath);
 });
+
+socket.on("closePath", function (data) {
+    currentPath.push(data);
+    paths.push(currentPath);
+
+    console.log("endPath: ", currentPath);
+    currentPath = [];
+});
+
+// TODO: Put in a seperate general Path class
+function renderPath(path) {
+    if(path.length <= 1) return; // No use in drawing a path that has no segments ;'~P
+    ctx.beginPath();
+    ctx.moveTo(path[0].x, path[0].y);
+    for(var i = 1; i < path.length; i++) {
+        ctx.lineTo(path[i].x, path[i].y);
+    }
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function widthFromDist(from, to) {
+    return Math.min(30 / Math.sqrt(Math.abs(to.x - from.x) + Math.abs(to.y - from.y)), 5);
+}
 
 var render = function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  /*rotate += Math.PI/64;
-    ctx.save();
-    ctx.translate(canvas.width/2, canvas.height/2);
-    ctx.rotate(rotate);
-    ctx.translate(-canvas.width/2, -canvas.height/2);
-    ctx.beginPath();
-    ctx.fillStyle = "pink";
-    ctx.fillRect(170, canvas.height/2 - 25, 230, 50);
-    ctx.arc(190, canvas.height/2 - 40, 30, 0, 2*Math.PI);
-    ctx.arc(190, canvas.height/2 + 40, 30, 0, 2*Math.PI);
-    ctx.closePath();
-
-    ctx.arc(400, canvas.height/2, 25, 0, 2*Math.PI);
-    ctx.fill();
-    ctx.restore();
-    */
-    //window.requestAnimationFrame(render);
+    
+    for(var i = 0; i < paths.length; i++) {
+        renderPath(paths[i]);
+    }
+    
+    renderPath(currentPath);
+    
+    window.requestAnimationFrame(render);
 };
 
+function relativeMousePosition(e)
+{
+    var source = canvas.getBoundingClientRect();
+    return {
+        x: e.clientX - source.left,
+        y: e.clientY - source.top
+    };
+}
 
-document.addEventListener('mouseup', function(e) {
-    var pos = mousePosition(e);
+var pencilTool = new PencilTool();
 
-    socket.emit('newPoint', {
-        x: pos.x,
-        y: pos.y
-    });
-    // Returns the mouse position relative to canvas
-    function mousePosition(e)
-    {
-        var source = canvas.getBoundingClientRect();
-        return {
-            x: e.clientX - source.left,
-            y: e.clientY - source.top
-        };
-    }
+document.addEventListener('mousedown', function(e) {
+    pencilTool.mouseDown(relativeMousePosition(e));
 });
 
-//window.requestAnimationFrame(render);
+document.addEventListener('mousemove', function(e) {
+    pencilTool.didMoveTo(relativeMousePosition(e));
+});
+
+document.addEventListener('mouseup', function(e) {
+    pencilTool.mouseUp(relativeMousePosition(e));
+});
+
+render();
+
+window.requestAnimationFrame(render);

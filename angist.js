@@ -92,23 +92,29 @@ io.on('connection', function(socket) {
     //setInterval(function () {
     //  socket.broadcast.emit("message", {x: Math.random()*600, y:Math.random()*400});
     //}, 1000);
+    
+    socket.on('beginPath', function(point) {
+        console.log("beginPath: ", point);
+        io.emit('beginPath', point);
+    });
 
     socket.on('newPoint', function(point) {
         if (!point) return;
         // TODO:
         // Change to broadcast:
-        io.emit('newPoint', {
-            x: point.x,
-            y: point.y
-        });
+        
+        console.log("newPoint: ", point);
+        
+        io.emit('newPoint', point);
         //socket.emit("newPoint", {
         //    x: Math.random()*600,
         //    y: Math.random()*400
         //});
     });
-
-    socket.on('stopDrawing', function(path) {
-
+    
+    socket.on('closePath', function(point) {
+        console.log("closePath: ", point);
+        io.emit('closePath', point);
     });
 
     // Broadcast when user starts typing
