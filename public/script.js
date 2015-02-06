@@ -23,8 +23,26 @@ socket.on("newPoint", function(data) {
 
 socket.on("closePath", function (data) {
     currentPath.push(data);
-    paths.push(currentPath);
+    paths.push(currentPath);    
     currentPath = [];
+});
+
+var startRoundButton = document.getElementById("startRound");
+var timeLeft = document.getElementById("secondsLeft");
+var guessButton = document.getElementById("guessButton");
+var guessInput = document.getElementById("guess");
+
+guessButton.addEventListener("mouseup", function() {
+    socket.emit("guess", guess.value);
+});
+
+socket.on("timeUpdate", function(newTime){
+    timeLeft.innerHTML = newTime;
+    console.log("Received timeUpdate from surver: ", newTime);
+});
+
+startRoundButton.addEventListener('mouseup', function(e) {
+    socket.emit('startRound');
 });
 
 // TODO: Put in a seperate general Path class
@@ -78,6 +96,6 @@ document.addEventListener('mouseup', function(e) {
     pencilTool.mouseUp(relativeMousePosition(e));
 });
 
-render();
 
+render();
 window.requestAnimationFrame(render);

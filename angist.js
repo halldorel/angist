@@ -10,6 +10,7 @@ var utils   = require('./utils');
 var express = require('express');
 var socket  = require('socket.io');
 
+var round   = require('./round');
 
 // Setup
 // =============================================================================
@@ -31,19 +32,42 @@ app.get('/', function(req, res) {
 
 app.use(express.static(__dirname + '/public'));
 
-
 // Makeshift user mgmt
 var users = {};
 var numUsers = 0;
 
-
-
 server.listen(port);
 
-
+var currentRound = null;
 // Connection
 // =============================================================================
 io.on('connection', function(socket) {
+
+    var timerCallback = function(secondsLeft) {
+        io.emit("timeUpdate", secondsLeft);
+        console.log("timeUpdate", secondsLeft);
+    };
+    
+    var roundEndedCallback = function(results) {
+        io.emit("roundEnded", results);
+        console.log("roundEnded", results);
+        currentRound = null;
+    };
+
+    socket.on('guess', function(guess) {
+        console.log(socket.username, "guessed", guess);
+        currentRound.guess(guess);
+    });
+    
+    socket.on('startRound', function() {
+        // TODO: Check first if the user can start a round
+        console.log("startRound");
+        if(currentRound == null) {
+            currentRound = round.newRound("drasl", timerCallback, roundEndedCallback);
+            currentRound.start();
+            console.log(currentRound);
+        }
+    });
 
     var loggedIn = false;
     socket.isConnectionDropped = function() {
@@ -89,10 +113,6 @@ io.on('connection', function(socket) {
         }
     );
     
-    //setInterval(function () {
-    //  socket.broadcast.emit("message", {x: Math.random()*600, y:Math.random()*400});
-    //}, 1000);
-    
     socket.on('beginPath', function(point) {
         console.log("beginPath: ", point);
         io.emit('beginPath', point);
@@ -104,12 +124,7 @@ io.on('connection', function(socket) {
         // Change to broadcast:
         
         console.log("newPoint: ", point);
-        
         io.emit('newPoint', point);
-        //socket.emit("newPoint", {
-        //    x: Math.random()*600,
-        //    y: Math.random()*400
-        //});
     });
     
     socket.on('closePath', function(point) {
