@@ -94,6 +94,7 @@ io.on('connection', function(socket) {
     //}, 1000);
     
     socket.on('beginPath', function(point) {
+        utils.pickWord();
         console.log("beginPath: ", point);
         io.emit('beginPath', point);
     });
@@ -155,6 +156,8 @@ io.on('connection', function(socket) {
     });
 });
 
+// Deprecated?
+// =============================================================================
 // TODO:
 // move to utils
 function echoToAll(evt, msg, ext) {
