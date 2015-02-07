@@ -64,7 +64,7 @@ io.on('connection', function(socket) {
             })
             delete users[socket.id];
         }
-
+        
         socket.username = username;
         users[socket.id] = {
             id       : socket.id,

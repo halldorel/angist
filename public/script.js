@@ -1,6 +1,10 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+var _lineWidth = 3;
+var lastSelectedColor;
+
+
 // Use this dictionary for server event names 
 var events = {
     newPoint  : 'newPoint',
@@ -11,29 +15,39 @@ var events = {
 var socket = io.connect('', {secure: true});
 
 var paths = [];
-var currentPath = [];
+
+
+function makeNewPath(color){
+    lastSelectedColor = color;
+    return {points : [], color : colors[color]}
+
+}
+
+var currentPath = makeNewPath('teal');
 
 socket.on("beginPath", function(data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
 });
 
 socket.on("newPoint", function(data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
 });
 
 socket.on("closePath", function (data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
     paths.push(currentPath);
-    currentPath = [];
+    currentPath = makeNewPath(lastSelectedColor);
 });
 
 // TODO: Put in a seperate general Path class
 function renderPath(path) {
-    if(path.length <= 1) return; // No use in drawing a path that has no segments ;'~P
+    if(path.points.length <= 1) return; // No use in drawing a path that has no segments ;'~P
     ctx.beginPath();
-    ctx.moveTo(path[0].x, path[0].y);
-    for(var i = 1; i < path.length; i++) {
-        ctx.lineTo(path[i].x, path[i].y);
+    ctx.lineWidth = _lineWidth;
+    ctx.moveTo(path.points[0].x, path.points[0].y);
+    ctx.strokeStyle = path.color;
+    for(var i = 1; i < path.points.length; i++) {
+        ctx.lineTo(path.points[i].x, path.points[i].y);
     }
     ctx.stroke();
     ctx.closePath();
@@ -45,7 +59,6 @@ function widthFromDist(from, to) {
 
 var render = function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     for(var i = 0; i < paths.length; i++) {
         renderPath(paths[i]);
     }
