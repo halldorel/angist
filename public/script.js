@@ -2,7 +2,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
 var _lineWidth = 3;
-var lastSelectedColor;
+var selectedColor = 'teal';
 
 
 // Use this dictionary for server event names 
@@ -16,14 +16,16 @@ var socket = io.connect('', {secure: true});
 
 var paths = [];
 
-
-function makeNewPath(color){
-    lastSelectedColor = color;
-    return {points : [], color : colors[color]}
-
+function setSelectedColor(color)
+{
+    selectedColor = color;
 }
 
-var currentPath = makeNewPath('teal');
+function makeNewPath(){
+    return {points : [], color : colors[selectedColor]}
+}
+
+var currentPath = makeNewPath();
 
 socket.on("beginPath", function(data) {
     currentPath.points.push(data);
@@ -36,7 +38,7 @@ socket.on("newPoint", function(data) {
 socket.on("closePath", function (data) {
     currentPath.points.push(data);
     paths.push(currentPath);
-    currentPath = makeNewPath(lastSelectedColor);
+    currentPath = makeNewPath();
 });
 
 // TODO: Put in a seperate general Path class

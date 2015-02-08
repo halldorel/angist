@@ -14,7 +14,7 @@ function populateColorPicker()
         div.id = color;
 
        	div.addEventListener('click',function(){
-       		makeNewPath(this.id);
+       	    setSelectedColor(this.id);
        	},false);
         pallet.appendChild(div);
     }
