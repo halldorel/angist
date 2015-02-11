@@ -19,7 +19,8 @@ var db = orm.connect("postgres://:@localhost/angist");
 
 db.on('connect', function(err) {
     if (err) return console.error('Vangefni í gagnagrunni: ' + err);
-    console.log('Raungefni í gagnagrunni.')
+    console.log('Raungefni í gagnagrunni.');
+    console.log('Ný tenging hafin, ' + new Date());
 });
 
 
