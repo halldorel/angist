@@ -3,9 +3,11 @@ var ctx = canvas.getContext("2d");
 
 // Use this dictionary for server event names 
 var events = {
-    newPoint  : 'newPoint',
-    beginPath : 'beginPath',
-    closePath : 'closePath'
+    newPoint    : 'newPoint',
+    beginPath   : 'beginPath',
+    closePath   : 'closePath',
+    sendMsg     : 'sendMsg',
+    receiveMsg  : 'receiveMsg'
 };
 
 var socket = io.connect('', {secure: true});
@@ -13,15 +15,15 @@ var socket = io.connect('', {secure: true});
 var paths = [];
 var currentPath = [];
 
-socket.on("beginPath", function(data) {
+socket.on(events.beginPath, function(data) {
     currentPath.push(data);
 });
 
-socket.on("newPoint", function(data) {
+socket.on(events.newPoint, function(data) {
     currentPath.push(data);
 });
 
-socket.on("closePath", function (data) {
+socket.on(events.closePath, function (data) {
     currentPath.push(data);
     paths.push(currentPath);
     currentPath = [];

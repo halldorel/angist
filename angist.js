@@ -5,10 +5,15 @@
 
 // Requirements
 // =============================================================================
+// Libraries
 var http    = require('http');
-var utils   = require('./utils');
 var express = require('express');
 var socket  = require('socket.io');
+
+// Angist modules
+var utils   = require('./utils');
+var db      = require('./db');
+
 
 
 // Setup
@@ -47,8 +52,7 @@ io.on('connection', function(socket) {
 
     var loggedIn = false;
     socket.isConnectionDropped = function() {
-        if (socket.username === undefined)
-        {
+        if (socket.username === undefined) {
             socket.emit('droppedConnection');
             return true;
         }
@@ -81,17 +85,13 @@ io.on('connection', function(socket) {
             numUsers : numUsers
         });
         // Echo to logged-in users
-        echoToAll('userJoined',
-                  {username : socket.username,
-                   users    : users,
-                   numUsers : numUsers},
-                  socket.id);
+        io.emit('userJoined',
+                {username : socket.username,
+                 users    : users,
+                 numUsers : numUsers},
+                socket.id);
         }
     );
-    
-    //setInterval(function () {
-    //  socket.broadcast.emit("message", {x: Math.random()*600, y:Math.random()*400});
-    //}, 1000);
     
     socket.on('beginPath', function(point) {
         utils.pickWord();
@@ -107,10 +107,6 @@ io.on('connection', function(socket) {
         console.log("newPoint: ", point);
         
         io.emit('newPoint', point);
-        //socket.emit("newPoint", {
-        //    x: Math.random()*600,
-        //    y: Math.random()*400
-        //});
     });
     
     socket.on('closePath', function(point) {
@@ -131,7 +127,7 @@ io.on('connection', function(socket) {
     socket.on('sendMessage', function(message) {
         if (socket.isConnectionDropped()) return;
         var date = new Date();
-        date = dage.getHours() + ":" + utils.pad(date.getMinutes(), 2);
+        date = date.getHours() + ":" + utils.pad(date.getMinutes(), 2);
 
         socket.broadcast.emit('message', {
             message : message,
