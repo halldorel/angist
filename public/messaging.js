@@ -12,18 +12,17 @@ var messages = document.getElementById('messages');
 // Events out
 // =============================================================================
 
-msgSend.addEventListener('click', function() {
-	sendMessage(msgInput.value);
-	msgInput.value = '';
+msgSend.addEventListener('click', function () {
+    sendMessage(msgInput.value);
+    msgInput.value = '';
 });
 
 // Events in
 // =============================================================================
 
-socket.on(events.receiveMsg, function(data) {
+socket.on(events.receiveMsg, function (data) {
     renderMessage(data);
 });
-
 
 
 // Message utils
@@ -31,13 +30,13 @@ socket.on(events.receiveMsg, function(data) {
 
 // Escapes the string in msg and sends it to the server if it is not empty.
 function sendMessage(msg) {
-	if (msg != '') socket.emit(events.sendMsg, escapeHTML(msg);
+    if (msg != '') socket.emit(events.sendMsg, escapeHTML(msg);
 }
 
 
 function renderMessage(data) {
-	var msgString = data.time + '| ' + data.user + ': ' + data.msg;
-	messages.appendChild(msgString)
+    var msgString = data.time + '| ' + data.user + ': ' + data.msg;
+    messages.appendChild(msgString)
 }
 
 

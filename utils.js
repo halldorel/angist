@@ -1,8 +1,7 @@
 // Pads str to length with leading zeroes
-exports.pad = function(str, length) {
+exports.pad = function (str, length) {
     str = '' + str;
-    while (str.length < length)
-    {
+    while (str.length < length) {
         str = '0' + str;
     }
     return str;
@@ -11,15 +10,15 @@ exports.pad = function(str, length) {
 // TODO:
 // Offload words_tmp into database.
 var words_tmp = ['spjaldhryggur',
-                 'þvengur',
-                 'stálbrjótur',
-                 'brjál-fótur',
-                 'þang-maður',
-                 'loðber',
-                 'bjúgaldin',
-                 'vél-maður'];
+    'þvengur',
+    'stálbrjótur',
+    'brjál-fótur',
+    'þang-maður',
+    'loðber',
+    'bjúgaldin',
+    'vél-maður'];
 // Picks a word at random from the word bank denoted by 'category'
-exports.pickWord = function(category) {
+exports.pickWord = function (category) {
     category = category || 'default';
     return words_tmp[Math.floor(Math.random() * words_tmp.length)];
 };

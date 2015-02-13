@@ -6,14 +6,13 @@
 // Requirements
 // =============================================================================
 // Libraries
-var http    = require('http');
+var http = require('http');
 var express = require('express');
-var socket  = require('socket.io');
+var socket = require('socket.io');
 
 // Angist modules
-var utils   = require('./utils');
-var db      = require('./db');
-
+var utils = require('./utils');
+var db = require('./db');
 
 
 // Setup
@@ -27,10 +26,10 @@ var port = process.env.PORT || 3000;
 
 app.set('views', __dirname + '/views');
 app.set('title', 'Angist');
-app.set('view options', { layout: false });
+app.set('view options', {layout: false});
 
 // Routing
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.sendFile(__dirname + '/views/index.html');
 });
 
@@ -42,8 +41,9 @@ var users = {};
 var numUsers = 0;
 
 
-
 server.listen(port);
+
+
 
 
 // Connection
@@ -51,7 +51,7 @@ server.listen(port);
 io.on('connection', function(socket) {
 
     var loggedIn = false;
-    socket.isConnectionDropped = function() {
+    socket.isConnectionDropped = function () {
         if (socket.username === undefined) {
             socket.emit('droppedConnection');
             return true;
@@ -60,39 +60,41 @@ io.on('connection', function(socket) {
     };
 
     socket.on('setUsername', function(username) {
-        // If user is changing their name
-        if (loggedIn) {
-            socket.broadcast.emit('userLeft', {
-                username : socket.username,
-                numUsers : --numUsers
-            })
-            delete users[socket.id];
-        }
+            // If user is changing their name
+            if (loggedIn) {
+                socket.broadcast.emit('userLeft', {
+                    username: socket.username,
+                    numUsers: --numUsers
+                });
+                delete users[socket.id];
+            }
 
-        socket.username = username;
-        users[socket.id] = {
-            id       : socket.id,
-            username : username
-        };
+            socket.username = username;
+            users[socket.id] = {
+                id: socket.id,
+                username: username
+            };
 
-        ++numUsers;
-        loggedIn = true;
+            ++numUsers;
+            loggedIn = true;
 
-        // Echo welcoming message locally
-        socket.emit('login', {
-            username : socket.username,
-            users    : users,
-            numUsers : numUsers
-        });
-        // Echo to logged-in users
-        io.emit('userJoined',
-                {username : socket.username,
-                 users    : users,
-                 numUsers : numUsers},
-                socket.id);
+            // Echo welcoming message locally
+            socket.emit('login', {
+                username: socket.username,
+                users: users,
+                numUsers: numUsers
+            });
+            // Echo to logged-in users
+            io.emit('userJoined',
+                    {
+                        username: socket.username,
+                        users: users,
+                        numUsers: numUsers
+                    },
+                    socket.id);
         }
     );
-    
+
     socket.on('beginPath', function(point) {
         utils.pickWord();
         console.log("beginPath: ", point);
@@ -103,12 +105,12 @@ io.on('connection', function(socket) {
         if (!point) return;
         // TODO:
         // Change to broadcast:
-        
+
         console.log("newPoint: ", point);
-        
+
         io.emit('newPoint', point);
     });
-    
+
     socket.on('closePath', function(point) {
         console.log("closePath: ", point);
         io.emit('closePath', point);
@@ -130,8 +132,8 @@ io.on('connection', function(socket) {
         date = date.getHours() + ":" + utils.pad(date.getMinutes(), 2);
 
         socket.broadcast.emit('message', {
-            message : message,
-            time    : date,
+            message: message,
+            time: date,
             username: socket.username
         });
         socket.broadcast.emit('stopTyping', {username: socket.username});
@@ -143,10 +145,10 @@ io.on('connection', function(socket) {
         // Remove username from global usernames list
         if (loggedIn) {
             socket.broadcast.emit('userLeft', {
-                username : socket.username,
-                users    : users,
-                numUsers : --numUsers
-            })
+                username: socket.username,
+                users: users,
+                numUsers: --numUsers
+            });
             delete users[socket.id];
         }
     });
