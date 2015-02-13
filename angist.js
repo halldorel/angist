@@ -96,7 +96,6 @@ io.on('connection', function(socket) {
     );
 
     socket.on('beginPath', function(point) {
-        utils.pickWord();
         console.log("beginPath: ", point);
         io.emit('beginPath', point);
     });
