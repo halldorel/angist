@@ -58,7 +58,7 @@ db.on('connect', function(err, db) {
      *               *
      *****************/
 
-    Word.hasOne('category', Category);
+    Word.hasOne('category', Category, {reverse: 'words'});
 
 
     /*****************

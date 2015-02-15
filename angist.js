@@ -33,6 +33,10 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/views/index.html');
 });
 
+app.get('/add-words', function (req, res) {
+    res.sendFile(__dirname + '/views/add_words.html');
+});
+
 app.use(express.static(__dirname + '/public'));
 
 
@@ -150,6 +154,25 @@ io.on('connection', function(socket) {
             });
             delete users[socket.id];
         }
+    });
+
+
+    socket.on('addWord', function(data) {
+        console.log("New word received: " + data.word);
+        var word = {
+            word: data.word,
+            played: 0,
+            guessed: 0
+        };
+        word = db.Word.create(word, function(err, items) {
+            if (err) return console.error(err);
+            console.log(items);
+        });
+        //if (data.category != undefined) {
+        //    var cat = db.Category.get(data.category);
+        //    word.setCategory(cat);
+        //    word.save();
+        //}
     });
 });
 
