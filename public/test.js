@@ -15,9 +15,13 @@ function populateColorPicker()
         div.id = color;
 
        	div.addEventListener('click',function(){
+<<<<<<< HEAD
           socket.emit(events.colorChange, this.className);
        	  setSelectedColor(this.className);
 
+=======
+       	    setSelectedColor(this.id);
+>>>>>>> 5d68f5a57a5341151a306a4b0fac00424b13c750
        	},false);
         pallet.appendChild(div);
     }

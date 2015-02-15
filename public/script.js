@@ -17,8 +17,6 @@ var socket = io.connect('', {secure: true});
 
 var paths = [];
 
-var i = 0;
-
 function setSelectedColor(color)
 {
     selectedColor = color;
