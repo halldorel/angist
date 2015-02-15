@@ -11,10 +11,13 @@ function populateColorPicker()
         div.style.width = '25px';
         div.style.height = '25px';
         div.style.background = colors[color];
+        div.className = color
         div.id = color;
 
        	div.addEventListener('click',function(){
-       	    setSelectedColor(this.id);
+          socket.emit(events.colorChange, this.className);
+       	  setSelectedColor(this.className);
+
        	},false);
         pallet.appendChild(div);
     }

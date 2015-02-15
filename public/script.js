@@ -9,16 +9,20 @@ var selectedColor = 'teal';
 var events = {
     newPoint  : 'newPoint',
     beginPath : 'beginPath',
-    closePath : 'closePath'
+    closePath : 'closePath',
+    colorChange : 'colorChange'
 };
 
 var socket = io.connect('', {secure: true});
 
 var paths = [];
 
+var i = 0;
+
 function setSelectedColor(color)
 {
     selectedColor = color;
+    currentPath = makeNewPath();
 }
 
 function makeNewPath(){
@@ -35,11 +39,16 @@ socket.on("newPoint", function(data) {
     currentPath.points.push(data);
 });
 
-socket.on("closePath", function (data) {
+socket.on("closePath", function(data) {
     currentPath.points.push(data);
     paths.push(currentPath);
     currentPath = makeNewPath();
 });
+
+socket.on("colorChange", function(data){
+    setSelectedColor(data);
+})
+
 
 // TODO: Put in a seperate general Path class
 function renderPath(path) {
