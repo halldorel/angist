@@ -27,6 +27,10 @@ socket.on("closePath", function (data) {
     currentPath = [];
 });
 
+socket.on("damn", function (message) {
+    console.log(message);
+});
+
 var startRoundButton = document.getElementById("startRound");
 var timeLeft = document.getElementById("secondsLeft");
 var guessButton = document.getElementById("guessButton");

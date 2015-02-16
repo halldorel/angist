@@ -55,8 +55,13 @@ io.on('connection', function(socket) {
     };
 
     socket.on('guess', function(guess) {
-        console.log(socket.username, "guessed", guess);
-        currentRound.guess(guess);
+        if(currentRound != null) {
+            console.log(socket.username, "guessed", guess);
+            currentRound.guess(guess);
+        }
+        else{
+            socket.emit("damn", "Round has not started!");
+        }
     });
     
     socket.on('startRound', function() {
