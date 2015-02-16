@@ -14,10 +14,12 @@ var socket = require('socket.io');
 var utils = require('./utils');
 var db = require('./db');
 
+var round   = require('./round');
 
 // Setup
 // =============================================================================
 var app = express();
+app.disable('etag');
 var server = http.createServer(app);
 var io = socket.listen(server);
 // Default to port 3000 if environment does not provide a port number.
@@ -39,32 +41,83 @@ app.get('/add-words', function (req, res) {
 
 app.use(express.static(__dirname + '/public'));
 
-
 // Makeshift user mgmt
+var socketIds = [];
 var users = {};
 var numUsers = 0;
 
-
 server.listen(port);
 
-
+var currentRound = null;
 var currentWord;
+var currentDrawer = null;
 
 // Connection
 // =============================================================================
 io.on('connection', function(socket) {
+    socketIds.push(socket.id);
+    
+    function setRandomDrawer() {
+        // *bleugh*
+        var randomIndex = Math.floor(Math.random() * socketIds.length);
+        currentDrawer = socketIds[randomIndex];
+        console.log("Current drawer: ", currentDrawer);
+    }
 
+    var timerCallback = function(secondsLeft) {
+        io.emit("timeUpdate", secondsLeft);
+    };
+    
+    var roundEndedCallback = function(results) {
+        io.emit("roundEnded", results);
+        console.log("roundEnded", results);
+        currentRound = null;
+    };
 
-    // Temporary:
-    // On each new connection we pick a new word and push it to all sockets.
-    db.pickWord(function(word) {
-        if(word){
-            currentWord = word;
-            socket.emit('newWord', {word: currentWord});
-        } else {
-            console.error('Error picking a word, is the database empty?');
+    socket.on('guess', function(guess) {
+            console.log(socket.id, "guessed", guess);
+        if(currentRound !== null) {
+            currentRound.guess(guess);
+            io.emit("guess", guess);
+        }
+        else {
+            console.log("Trying to guess in a non-round. Ignoring.");
         }
     });
+    
+    socket.on('startRound', function() {
+        // TODO: Check first if the user can start a round
+        console.log("startRound");
+        if(currentRound == null) {
+            
+            setRandomDrawer();
+            
+            console.log("Starting round ...")
+            db.pickWord(function(word) {
+                if(word) {
+                    currentWord = word;
+                    currentRound = round.newRound(currentWord.word, timerCallback, roundEndedCallback);
+                    currentRound.start();
+                    console.log(currentDrawer);
+                    io.to(currentDrawer).emit('newWord', currentWord.word);
+                }
+                else {
+                    console.error("Erroneous attempt at word yielding.")
+                }
+            });
+        }
+    });
+
+// Temporary:
+// On each new connection we pick a new word and push it to all sockets.
+// db.pickWord(function(word) {
+//         if(word){
+//             currentWord = word;
+//             socket.emit('newWord', {word: currentWord});
+//         } else {
+//             console.error('Error picking a word, is the database empty?');
+//         }
+//     });
 
     var loggedIn;
     socket.isConnectionDropped = function () {
@@ -110,7 +163,7 @@ io.on('connection', function(socket) {
                     socket.id);
         }
     );
-
+    
     socket.on('beginPath', function(point) {
         console.log("beginPath: ", point);
         io.emit('beginPath', point);
@@ -122,7 +175,7 @@ io.on('connection', function(socket) {
         // Change to broadcast:
 
         console.log("newPoint: ", point);
-
+        
         io.emit('newPoint', point);
     });
 
@@ -162,16 +215,16 @@ io.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         // Remove username from global usernames list
-        if (loggedIn) {
-            socket.broadcast.emit('userLeft', {
-                username: socket.username,
-                users: users,
-                numUsers: --numUsers
-            });
-            delete users[socket.id];
-        }
+//         if (loggedIn) {
+//             socket.broadcast.emit('userLeft', {
+//                 username: socket.username,
+//                 users: users,
+//                 numUsers: --numUsers
+//             });
+//             delete users[socket.id];
+//         }
+        delete users[socket.id];
     });
-
 
     socket.on('addWord', function(data) {
         console.log("New word received: " + data.word);
@@ -191,6 +244,7 @@ io.on('connection', function(socket) {
         //}
     });
 });
+
 
 // Deprecated?
 // =============================================================================

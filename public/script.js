@@ -4,7 +4,6 @@ var ctx = canvas.getContext("2d");
 var _lineWidth = 3;
 var selectedColor = 'teal';
 
-
 // Use this dictionary for server event names 
 var events = {
     colorChange : 'colorChange',
@@ -13,25 +12,59 @@ var events = {
     closePath: 'closePath',
     sendMsg: 'sendMsg',
     receiveMsg: 'receiveMsg',
-    newWord: 'newWord'
+    newWord: 'newWord',
+    timeUpdate: 'timeUpdate',
+    guess: 'guess'
 };
 
 var socket = io.connect('', {secure: true});
 
 var paths = [];
 
-function setSelectedColor(color)
-{
+function setSelectedColor(color) {
     selectedColor = color;
     currentPath = makeNewPath();
 }
 
-function makeNewPath(){
+function makeNewPath() {
     return {points : [], color : colors[selectedColor]}
 }
 
+var guessDisplay = GuessDisplay("guessDisplay");
+
 var currentPath = makeNewPath();
 
+var pencilTool = new PencilTool();
+
+// Local event handlers
+// =============================================================================
+
+var startRoundButton = document.getElementById("startRound");
+var timeLeft = document.getElementById("secondsLeft");
+var guessInput = document.getElementById("guessInput");
+
+startRoundButton.addEventListener('mouseup', function(e) {
+    socket.emit('startRound');
+});
+    
+canvas.addEventListener('mousedown', function (e) {
+    pencilTool.mouseDown(relativeMousePosition(e));
+});
+
+canvas.addEventListener('mousemove', function (e) {
+    pencilTool.didMoveTo(relativeMousePosition(e));
+});
+
+canvas.addEventListener('mouseup', function (e) {
+    pencilTool.mouseUp(relativeMousePosition(e));
+});
+
+guessInput.addEventListener('keydown', function(e) {
+    if(e.keyCode == '13') {
+        socket.emit(events.guess, guessInput.value);
+        guessInput.value = '';
+    }
+});
 
 // Network event handlers
 // =============================================================================
@@ -49,13 +82,22 @@ socket.on(events.closePath, function (data) {
     currentPath = makeNewPath();
 });
 
-socket.on(events.colorChange, function(data){
-    setSelectedColor(data);
-})
+socket.on(events.timeUpdate, function(newTime){
+    timeLeft.innerHTML = newTime;
+});
 
 socket.on(events.newWord, function (data) {
-    console.log(data.word.word);
-    document.getElementById('current-word').innerHTML = data.word.word;
+    console.log("new word: ", data);
+    document.getElementById('current-word').innerText = data;
+});
+
+socket.on(events.colorChange, function(data){
+    setSelectedColor(data);
+});
+
+socket.on("guess", function(guess) {
+    console.log("Received guess: ", guess);
+    guessDisplay.show(guess);
 });
 
 // TODO: Put in a seperate general Path class
@@ -95,22 +137,7 @@ function relativeMousePosition(e) {
     };
 }
 
-var pencilTool = new PencilTool();
-
-// Local event handlers
-// =============================================================================
-document.addEventListener('mousedown', function (e) {
-    pencilTool.mouseDown(relativeMousePosition(e));
-});
-
-document.addEventListener('mousemove', function (e) {
-    pencilTool.didMoveTo(relativeMousePosition(e));
-});
-
-document.addEventListener('mouseup', function (e) {
-    pencilTool.mouseUp(relativeMousePosition(e));
-});
+// Canvas rendering kickoff
 
 render();
-
 window.requestAnimationFrame(render);
