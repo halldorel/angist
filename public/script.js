@@ -8,7 +8,8 @@ var events = {
     closePath: 'closePath',
     sendMsg: 'sendMsg',
     receiveMsg: 'receiveMsg',
-    newWord: 'newWord'
+    newWord: 'newWord',
+    timeUpdate: 'timeUpdate'
 };
 
 var socket = io.connect('', {secure: true});
@@ -42,16 +43,17 @@ guessButton.addEventListener("mouseup", function() {
     socket.emit("guess", guess.value);
 });
 
-socket.on("timeUpdate", function(newTime){
+socket.on(events.timeUpdate, function(newTime){
     timeLeft.innerHTML = newTime;
-    console.log("Received timeUpdate from surver: ", newTime);
 });
 
 startRoundButton.addEventListener('mouseup', function(e) {
     socket.emit('startRound');
+});
     
 socket.on(events.newWord, function (data) {
-    document.getElementById('current-word').innerText = data.word.word;
+    console.log("new word: ", data);
+    document.getElementById('current-word').innerText = data;
 });
 
 // TODO: Put in a seperate general Path class

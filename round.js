@@ -21,7 +21,9 @@ module.exports.newRound = function(word, timerCallback, roundEndedCallback, time
             clearInterval(_timerInterval);
             roundEndedCallback({reason:"correct_guess", correct: word});
         }
-        console.log("Incurrect guess!");
+        else {
+            console.log("Incurrect guess!");
+        }
     };
     
     var _tick = function() {
