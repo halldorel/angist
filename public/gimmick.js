@@ -22,30 +22,32 @@ var alpha = 1,   /// current alpha value
 var displayGuess = function(text) {
     ctx2.font = "52px sans";
     ctx2.fillStyle = gColor;
-    ctx2.fillText(text, gX, gY);
-
+    alpha = 1;
     gColor = getRandomValue(guessColors);
     gX = getRandomValue(guessXs);
     gY = getRandomValue(guessYs);
-    guess = guessInput.value;
-    guessInput.value = '';
-    loop();
 }
+
+var text = "";
 
 function loop() {
-    alpha -= delta;
+    if(alpha > 0) alpha -= delta;
     ctx2.clearRect(0, 0, guessesDisplay.width, guessesDisplay.height);
     ctx2.globalAlpha = alpha;
-    displayGuess(guess);
-    if (alpha <= 0) {
-        alpha = 1;
-    } else {
-        requestAnimationFrame(loop);
+    ctx2.fillText(text, gX, gY);
+    requestAnimationFrame(loop);
+}
+
+var guessInput = document.getElementById("guessInput");
+guessInput.onkeyup = function(e) {
+    if (e.keyCode == 13) {
+        displayGuess(e.target.value);
+        guess = guessInput.value;
+        io.emit("guess", guess);
+        text = guess;
+        guessInput.value = '';
+        
     }
 }
 
-guessInput.onkeyup = function(e) {
-    if (e.keyCode == 13) {
-        displayGuess(this.value);
-    }
-}
+loop();

@@ -19,6 +19,7 @@ var round   = require('./round');
 // Setup
 // =============================================================================
 var app = express();
+app.disable('etag');
 var server = http.createServer(app);
 var io = socket.listen(server);
 // Default to port 3000 if environment does not provide a port number.

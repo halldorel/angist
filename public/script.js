@@ -121,9 +121,5 @@ document.addEventListener('mouseup', function (e) {
     pencilTool.mouseUp(relativeMousePosition(e));
 });
 
-document.addEventListener('keydown', function (e) {
-    console.log(e);
-});
-
 render();
 window.requestAnimationFrame(render);
