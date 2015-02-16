@@ -29,7 +29,10 @@ if (!process.env.NODE_ENV) {
     var herokuEnv = require('heroku-env');
     console.log('here');
     herokuEnv('angist', function(err, env) {
-        if (err) return console.error("Could not connect to Heroku Postgres");
+        if (err){
+            console.log(err);
+            return console.error("Could not connect to Heroku Postgres");
+        }
         console.log(env);
         db = orm.connect(env.HEROKU_POSTGRESQL_IVORY_URL);
         db.on('connect', function(err, db){
