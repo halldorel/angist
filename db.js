@@ -22,15 +22,13 @@ var orm = require('orm');
 var db;
 if (!process.env.NODE_ENV) {
     db = orm.connect("postgres://:@localhost/angist");
-    db.on('connect', function(err, db) {
-        setUp(err, db)
-    });
 } else {
     db = orm.connect(process.env.DATABASE_URL);
-    db.on('connect', function(err, db){
-        setUp(err, db)
-    });
 }
+
+db.on('connect', function(err, db){
+    setUp(err, db)
+});
 
 function setUp(err, db) {
     if (err) return printError(err);
