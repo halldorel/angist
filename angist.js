@@ -75,8 +75,14 @@ io.on('connection', function(socket) {
     };
 
     socket.on('guess', function(guess) {
-        console.log(socket.id, "guessed", guess);
-        currentRound.guess(guess);
+            console.log(socket.id, "guessed", guess);
+        if(currentRound !== null) {
+            currentRound.guess(guess);
+            io.emit("guess", guess);
+        }
+        else {
+            console.log("Trying to guess in a non-round. Ignoring.");
+        }
     });
     
     socket.on('startRound', function() {

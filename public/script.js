@@ -13,7 +13,8 @@ var events = {
     sendMsg: 'sendMsg',
     receiveMsg: 'receiveMsg',
     newWord: 'newWord',
-    timeUpdate: 'timeUpdate'
+    timeUpdate: 'timeUpdate',
+    guess: 'guess'
 };
 
 var socket = io.connect('', {secure: true});
@@ -29,7 +30,40 @@ function makeNewPath() {
     return {points : [], color : colors[selectedColor]}
 }
 
+var guessDisplay = GuessDisplay("guessDisplay");
+
 var currentPath = makeNewPath();
+
+var pencilTool = new PencilTool();
+
+// Local event handlers
+// =============================================================================
+
+var startRoundButton = document.getElementById("startRound");
+var timeLeft = document.getElementById("secondsLeft");
+var guessInput = document.getElementById("guessInput");
+
+startRoundButton.addEventListener('mouseup', function(e) {
+    socket.emit('startRound');
+});
+    
+canvas.addEventListener('mousedown', function (e) {
+    pencilTool.mouseDown(relativeMousePosition(e));
+});
+
+canvas.addEventListener('mousemove', function (e) {
+    pencilTool.didMoveTo(relativeMousePosition(e));
+});
+
+canvas.addEventListener('mouseup', function (e) {
+    pencilTool.mouseUp(relativeMousePosition(e));
+});
+
+guessInput.addEventListener('keydown', function(e) {
+    if(e.keyCode == '13') {
+        socket.emit(events.guess, guessInput.value);
+    }
+});
 
 // Network event handlers
 // =============================================================================
@@ -47,18 +81,10 @@ socket.on(events.closePath, function (data) {
     currentPath = makeNewPath();
 });
 
-var startRoundButton = document.getElementById("startRound");
-var timeLeft = document.getElementById("secondsLeft");
-var guessInput = document.getElementById("guess");
-
 socket.on(events.timeUpdate, function(newTime){
     timeLeft.innerHTML = newTime;
 });
 
-startRoundButton.addEventListener('mouseup', function(e) {
-    socket.emit('startRound');
-});
-    
 socket.on(events.newWord, function (data) {
     console.log("new word: ", data);
     document.getElementById('current-word').innerText = data;
@@ -66,6 +92,11 @@ socket.on(events.newWord, function (data) {
 
 socket.on(events.colorChange, function(data){
     setSelectedColor(data);
+});
+
+socket.on("guess", function(guess) {
+    console.log("Received guess: ", guess);
+    guessDisplay.show(guess);
 });
 
 // TODO: Put in a seperate general Path class
@@ -105,21 +136,7 @@ function relativeMousePosition(e) {
     };
 }
 
-var pencilTool = new PencilTool();
-
-// Local event handlers
-// =============================================================================
-canvas.addEventListener('mousedown', function (e) {
-    pencilTool.mouseDown(relativeMousePosition(e));
-});
-
-canvas.addEventListener('mousemove', function (e) {
-    pencilTool.didMoveTo(relativeMousePosition(e));
-});
-
-canvas.addEventListener('mouseup', function (e) {
-    pencilTool.mouseUp(relativeMousePosition(e));
-});
+// Canvas rendering kickoff
 
 render();
 window.requestAnimationFrame(render);

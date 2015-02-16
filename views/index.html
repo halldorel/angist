@@ -16,7 +16,10 @@
     
     <div id="header">
         <img src="angist.png" id="logo" width="150" height="150" alt="angist">
-        <canvas width="740" height="150" id="guessesDisplay"></canvas>
+        <div id="guessDisplay">
+            <div></div><div></div><div></div>
+            <div></div><div></div><div></div>
+        </div>
     </div>
     <div id="game">
         <canvas width="600" height="400" id="canvas"></canvas>
@@ -41,11 +44,13 @@
     </div>
     <div id="colorPicker"></div>
     <div id="current-word"></div>
+    
     <script src="socket.io.js"></script>
-    <script src="PencilTool.js"></script>
     <script src="globals.js"></script>
+    <script src="PencilTool.js"></script>
+    <script src="GuessDisplay.js"></script>
+    
     <script src="script.js"></script>
-    <script src="gimmick.js"></script>
     <script src="test.js"></script>
 </body>
 </html>
