@@ -108,7 +108,7 @@ function setUp(err, db) {
     exports.pickWord = function(callback) {
         Word.findRandom(function(err, item) {
             if (err) return console.error(err);
-            if(item[0]) {
+            if(item) {
                 console.log("Picked a random word: " + item[0].word);
                 callback(item[0]);
             } else {
