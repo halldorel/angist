@@ -1,8 +1,13 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+var _lineWidth = 3;
+var selectedColor = 'teal';
+
+
 // Use this dictionary for server event names 
 var events = {
+    colorChange : 'colorChange',
     newPoint: 'newPoint',
     beginPath: 'beginPath',
     closePath: 'closePath',
@@ -14,36 +19,54 @@ var events = {
 var socket = io.connect('', {secure: true});
 
 var paths = [];
-var currentPath = [];
+
+function setSelectedColor(color)
+{
+    selectedColor = color;
+    currentPath = makeNewPath();
+}
+
+function makeNewPath(){
+    return {points : [], color : colors[selectedColor]}
+}
+
+var currentPath = makeNewPath();
 
 
 // Network event handlers
 // =============================================================================
 socket.on(events.beginPath, function (data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
 });
 
 socket.on(events.newPoint, function (data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
 });
 
 socket.on(events.closePath, function (data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
     paths.push(currentPath);
-    currentPath = [];
+    currentPath = makeNewPath();
 });
 
+socket.on(events.colorChange, function(data){
+    setSelectedColor(data);
+})
+
 socket.on(events.newWord, function (data) {
-    document.getElementById('current-word').innerText = data.word.word;
+    console.log(data.word.word);
+    document.getElementById('current-word').innerHTML = data.word.word;
 });
 
 // TODO: Put in a seperate general Path class
 function renderPath(path) {
-    if (path.length <= 1) return; // No use in drawing a path that has no segments ;'~P
+    if(path.points.length <= 1) return; // No use in drawing a path that has no segments ;'~P
     ctx.beginPath();
-    ctx.moveTo(path[0].x, path[0].y);
-    for (var i = 1; i < path.length; i++) {
-        ctx.lineTo(path[i].x, path[i].y);
+    ctx.lineWidth = _lineWidth;
+    ctx.moveTo(path.points[0].x, path.points[0].y);
+    ctx.strokeStyle = path.color;
+    for(var i = 1; i < path.points.length; i++) {
+        ctx.lineTo(path.points[i].x, path.points[i].y);
     }
     ctx.stroke();
     ctx.closePath();
@@ -55,8 +78,7 @@ function widthFromDist(from, to) {
 
 var render = function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (var i = 0; i < paths.length; i++) {
+    for(var i = 0; i < paths.length; i++) {
         renderPath(paths[i]);
     }
 
