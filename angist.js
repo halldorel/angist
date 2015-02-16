@@ -131,6 +131,10 @@ io.on('connection', function(socket) {
         io.emit('closePath', point);
     });
 
+    socket.on('colorChange', function(color){
+        io.emit('colorChange', color);
+    })
+
     // Broadcast when user starts typing
     socket.on('startTyping', function() {
         if (socket.isConnectionDropped()) return;
