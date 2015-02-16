@@ -62,6 +62,7 @@ canvas.addEventListener('mouseup', function (e) {
 guessInput.addEventListener('keydown', function(e) {
     if(e.keyCode == '13') {
         socket.emit(events.guess, guessInput.value);
+        guessInput.value = '';
     }
 });
 
