@@ -26,24 +26,10 @@ if (!process.env.NODE_ENV) {
         setUp(err, db)
     });
 } else {
-    // TODO:
-    // Generalize this to use heroku-env instead of literal url
-    //db = orm.connect("postgres://pplstixczhiais:BaV4Oywok1Eh-qmKBL-FGuxKEO@ec2-54-247-107-140.eu-west-1.compute.amazonaws.com:5432/d2nra85njmd1a6");
     db = orm.connect(process.env.DATABASE_URL);
     db.on('connect', function(err, db){
         setUp(err, db)
     });
-    //var herokuEnv = require('heroku-env');
-    //herokuEnv('angist', function(err, env) {
-    //    if (err){
-    //        return console.error("Could not connect to Heroku Postgres: " + err);
-    //    }
-    //    console.log(env);
-    //    db = orm.connect(env.HEROKU_POSTGRESQL_IVORY_URL);
-    //    db.on('connect', function(err, db){
-    //        setUp(err, db)
-    //    });
-    //});
 }
 
 function setUp(err, db) {
