@@ -44,18 +44,11 @@ app.use(express.static(__dirname + '/public'));
 var users = {};
 var numUsers = 0;
 
-<<<<<<< HEAD
 server.listen(port);
 
 var currentRound = null;
-=======
-
-server.listen(port);
-
-
 var currentWord;
 
->>>>>>> f41e074c14e53c275f84370c0fc4f2ef4860827c
 // Connection
 // =============================================================================
 io.on('connection', function(socket) {
