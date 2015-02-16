@@ -3,11 +3,37 @@
 <head>
 	<meta charset="utf-8" />
 	<title>Angist!</title>
+    <link rel="stylesheet" href="style/angist.css" type="text/css" media="screen">
 </head>
 <body>
-    <canvas width="600" height="400" id="canvas" style="border: 1px solid #cecece"></canvas>
+    <div id="header">
+        <img src="angist.png" id="logo" width="150" height="150" alt="angist">
+        <canvas width="740" height="150" id="guessesDisplay"></canvas>
+    </div>
+    <div id="game">
+        <canvas width="600" height="400" id="canvas"></canvas>
+        <div id="guess">
+            <textarea id="guessTextArea" placeholder="Hvað er verið að teikna?"></textarea>
+        </div>
+    </div>
+    <div id="chat">
+        <ul id="responseList">
+            <li class="response">
+                <p>Bjossi</p>
+                <p>Hallo hallo hallo</p>
+            </li>
+            <li class="response">
+                <p>Tommi</p>
+                <p>Blurgh</p>
+            </li>
+        </ul>
+        <div id="message">
+            <textarea id="messageTextArea" placeholder="Hvað ertu að pæla?"></textarea>
+        </div>
+    </div>
     <script src="socket.io.js"></script>
     <script src="PencilTool.js"></script>
     <script src="script.js"></script>
+    <script src="gimmick.js"></script>
 </body>
 </html>
