@@ -109,15 +109,15 @@ var pencilTool = new PencilTool();
 
 // Local event handlers
 // =============================================================================
-document.addEventListener('mousedown', function (e) {
+canvas.addEventListener('mousedown', function (e) {
     pencilTool.mouseDown(relativeMousePosition(e));
 });
 
-document.addEventListener('mousemove', function (e) {
+canvas.addEventListener('mousemove', function (e) {
     pencilTool.didMoveTo(relativeMousePosition(e));
 });
 
-document.addEventListener('mouseup', function (e) {
+canvas.addEventListener('mouseup', function (e) {
     pencilTool.mouseUp(relativeMousePosition(e));
 });
 
