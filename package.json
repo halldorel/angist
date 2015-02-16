@@ -17,7 +17,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.4.4",
-    "heroku-env": "^0.2.0",
     "orm": "^2.1.22",
     "orm-random": "0.0.1",
     "pg": "2.5.0",
