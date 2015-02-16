@@ -2,6 +2,7 @@ body {
     width: 900px;
     margin: 10px auto;
     font-size: 14px;
+    font-family: Helvetica;
 }
 
 #logo {
@@ -73,13 +74,15 @@ body {
 
 #guessDisplay div {
     display: block;
-    font-size: 1.2em;
+    font-size: 1.8em;
     text-align: center;
     overflow: hidden;
     width: 33.33%;
-    height: 50%;
+    height: 18%;
+    padding: 4% 0%;
     float: left;
     opacity: 0;
+    vertical-align: middle;
     -webkit-transition: 3s opacity linear;
 }
 
