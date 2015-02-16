@@ -22,6 +22,9 @@ var orm = require('orm');
 var db;
 if (!process.env.NODE_ENV) {
     db = orm.connect("postgres://:@localhost/angist");
+    db.on('connect', function(err, db) {
+        setUp(err, db)
+    });
 } else {
     var herokuEnv = require('heroku-env');
     console.log('here');
@@ -29,10 +32,13 @@ if (!process.env.NODE_ENV) {
         if (err) return console.error("Could not connect to Heroku Postgres");
         console.log(env);
         db = orm.connect(env.HEROKU_POSTGRESQL_IVORY_URL);
+        db.on('connect', function(err, db){
+            setUp(err, db)
+        });
     });
 }
 
-db.on('connect', function(err, db) {
+function setUp(err, db) {
     if (err) return printError(err);
     console.log('Raungefni í gagnagrunni.');
     console.log('Ný tenging hafin, ' + new Date());
@@ -101,7 +107,7 @@ db.on('connect', function(err, db) {
             callback(item[0]);
         });
     };
-});
+}
 
 
 // Utils
