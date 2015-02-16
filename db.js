@@ -24,7 +24,10 @@ if (!process.env.NODE_ENV) {
     db = orm.connect("postgres://:@localhost/angist");
 } else {
     var herokuEnv = require('heroku-env');
+    console.log('here');
     herokuEnv('angist', function(err, env) {
+        if (err) return console.error("Could not connect to Heroku Postgres");
+        console.log(env);
         db = orm.connect(env.HEROKU_POSTGRESQL_IVORY_URL);
     });
 }
