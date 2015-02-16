@@ -7,7 +7,8 @@ var events = {
     beginPath: 'beginPath',
     closePath: 'closePath',
     sendMsg: 'sendMsg',
-    receiveMsg: 'receiveMsg'
+    receiveMsg: 'receiveMsg',
+    newWord: 'newWord'
 };
 
 var socket = io.connect('', {secure: true});
@@ -15,6 +16,9 @@ var socket = io.connect('', {secure: true});
 var paths = [];
 var currentPath = [];
 
+
+// Network event handlers
+// =============================================================================
 socket.on(events.beginPath, function (data) {
     currentPath.push(data);
 });
@@ -27,6 +31,10 @@ socket.on(events.closePath, function (data) {
     currentPath.push(data);
     paths.push(currentPath);
     currentPath = [];
+});
+
+socket.on(events.newWord, function (data) {
+    document.getElementById('current-word').innerText = data.word.word;
 });
 
 // TODO: Put in a seperate general Path class
@@ -67,6 +75,8 @@ function relativeMousePosition(e) {
 
 var pencilTool = new PencilTool();
 
+// Local event handlers
+// =============================================================================
 document.addEventListener('mousedown', function (e) {
     pencilTool.mouseDown(relativeMousePosition(e));
 });

@@ -13,20 +13,27 @@
 exports.Word = null;
 exports.Category = null;
 
+
 // Setup
 // =============================================================================
 var orm = require('orm');
 
-// TODO:
-// Connect to a non-development database when !DEBUG
-var db = orm.connect("postgres://:@localhost/angist");
-//var db = orm.connect("postgres:///angist");
+// Connect to a non-development database when NODE_ENV = 'production'
+var db;
+if (!process.env.NODE_ENV) {
+    db = orm.connect("postgres://:@localhost/angist");
+} else {
+    var herokuEnv = require('heroku-env');
+    herokuEnv('angist', function(err, env) {
+        db = orm.connect(env.HEROKU_POSTGRESQL_IVORY_URL);
+    });
+}
 
 db.on('connect', function(err, db) {
     if (err) return printError(err);
     console.log('Raungefni í gagnagrunni.');
     console.log('Ný tenging hafin, ' + new Date());
-
+    db.use(require('orm-random'));
     /*****************
      *               *
      *     MODELS    *
@@ -78,6 +85,19 @@ db.on('connect', function(err, db) {
     });
 
 
+    /********************
+     *                  *
+     *  PUBLIC METHODS  *
+     *                  *
+     ********************/
+
+    exports.pickWord = function(callback) {
+        Word.findRandom(function(err, item) {
+            if (err) return console.error(err);
+            console.log("Picked a random word: " + item[0].word);
+            callback(item[0]);
+        });
+    };
 });
 
 

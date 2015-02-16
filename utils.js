@@ -6,19 +6,3 @@ exports.pad = function (str, length) {
     }
     return str;
 };
-
-// TODO:
-// Offload words_tmp into database.
-var words_tmp = ['spjaldhryggur',
-    'þvengur',
-    'stálbrjótur',
-    'brjál-fótur',
-    'þang-maður',
-    'loðber',
-    'bjúgaldin',
-    'vél-maður'];
-// Picks a word at random from the word bank denoted by 'category'
-exports.pickWord = function (category) {
-    category = category || 'default';
-    return words_tmp[Math.floor(Math.random() * words_tmp.length)];
-};

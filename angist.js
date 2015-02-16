@@ -48,13 +48,25 @@ var numUsers = 0;
 server.listen(port);
 
 
-
+var currentWord;
 
 // Connection
 // =============================================================================
 io.on('connection', function(socket) {
 
-    var loggedIn = false;
+
+    // Temporary:
+    // On each new connection we pick a new word and push it to all sockets.
+    db.pickWord(function(word) {
+        if(word){
+            currentWord = word;
+            socket.emit('newWord', {word: currentWord});
+        } else {
+            console.error('Error picking a word, is the database empty?');
+        }
+    });
+
+    var loggedIn;
     socket.isConnectionDropped = function () {
         if (socket.username === undefined) {
             socket.emit('droppedConnection');
