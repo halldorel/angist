@@ -7,7 +7,6 @@ var selectedColor = 'teal';
 
 // Use this dictionary for server event names 
 var events = {
-
     colorChange : 'colorChange',
     newPoint: 'newPoint',
     beginPath: 'beginPath',
@@ -37,15 +36,15 @@ var currentPath = makeNewPath();
 // Network event handlers
 // =============================================================================
 socket.on(events.beginPath, function (data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
 });
 
 socket.on(events.newPoint, function (data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
 });
 
 socket.on(events.closePath, function (data) {
-    currentPath.push(data);
+    currentPath.points.push(data);
     paths.push(currentPath);
     currentPath = makeNewPath();
 });
@@ -55,7 +54,8 @@ socket.on(events.colorChange, function(data){
 })
 
 socket.on(events.newWord, function (data) {
-    document.getElementById('current-word').innerText = data.word.word;
+    console.log(data.word.word);
+    document.getElementById('current-word').innerHTML = data.word.word;
 });
 
 // TODO: Put in a seperate general Path class
