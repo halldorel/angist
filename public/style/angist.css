@@ -1,0 +1,64 @@
+body {
+    width: 900px;
+    margin: 10px auto;
+}
+
+#logo {
+}
+
+#guessesDisplay {
+    float: right;
+}
+
+#game {
+    float: left;
+}
+
+#canvas {
+    border: 1px solid #cecece;
+    margin-bottom: 4px;
+    border-radius: 5px;
+}
+
+#chat {
+    height: 470px;
+    margin-left: 610px;
+    border: 1px solid #cecece;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+#responseList {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+#message {
+    height: 60px;
+    border-top: 1px solid #cecece;
+    display: flex;
+    flex-direction: row;
+}
+
+#messageTextArea {
+    flex-grow: 1;
+    flex-shrink: 1;
+    border: none;
+    margin: 10px;
+}
+
+#guess input {
+    height: 60px;
+    border: 1px solid #cecece;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+#guessTextArea {
+    flex-grow: 1;
+    flex-shrink: 1;
+    border: none;
+    margin: 10px;
+}
