@@ -55,6 +55,11 @@ function setUp(err, db) {
         methods: {
             difficulty: function () {
                 return 1 - (this.guessed / this.played);
+            },
+            update: function(rightGuess) {
+                this.played++;
+                if (rightGuess) this.guessed++;
+                this.save();
             }
         }
     });
