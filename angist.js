@@ -52,6 +52,27 @@ var currentRound = null;
 var currentWord;
 var currentDrawer = null;
 
+// User auth
+// =============================================================================
+var passport = require('passport');
+var flash    = require('connect-flash');
+
+var morgan       = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser   = require('body-parser');
+var session      = require('express-session');
+
+app.use(morgan('dev'));  // Log all http requests
+app.use(cookieParser()); // Cookies for auth
+app.use(bodyParser());   // Parsing html forms
+
+app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash());            // Allow flash messages stored in session
+
+
+
 // Connection
 // =============================================================================
 io.on('connection', function(socket) {
