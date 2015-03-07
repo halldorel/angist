@@ -108,6 +108,8 @@ io.on('connection', function(socket) {
         }
     });
 
+
+
 // Temporary:
 // On each new connection we pick a new word and push it to all sockets.
 // db.pickWord(function(word) {
@@ -186,7 +188,19 @@ io.on('connection', function(socket) {
 
     socket.on('colorChange', function(color){
         io.emit('colorChange', color);
-    })
+    });
+
+    socket.on('undoLastLine', function() {
+        io.emit('undoLastLine');
+    });
+
+    socket.on('increaseLineWidth', function(){
+        io.emit('increaseLineWidth');
+    });
+
+    socket.on('decreaseLineWidth', function(){
+        io.emit('decreaseLineWidth');
+    });
 
     // Broadcast when user starts typing
     socket.on('startTyping', function() {
