@@ -7,19 +7,26 @@
 </head>
 <body>
 
-    <button id="startRound">Start</button>
-    <div id="secondsLeft">30</div>
-    <br>
-
-    <div id="current-word"></div>
-    <br>
-    
     <div id="header">
         <img src="angist.png" id="logo" width="150" height="150" alt="angist">
         <div id="guessDisplay">
             <div></div><div></div><div></div>
             <div></div><div></div><div></div>
         </div>
+    </div>
+    <div id="status">
+      <span class="seconds-left-label">Tími eftir: </span><span id="secondsLeft">30</span>
+      
+      <div id="colorPicker"></div>
+      
+      <div>
+          <button id="undoButton">Mistök</button>
+          <button id="increaseButton">Þykkja pensil</button>
+          <button id="decreaseButton">Grenna pensil</button>
+      </div>
+      
+      <div id="current-word"></div>
+      <canvas width="50" height="50" id="previewCanvas"></canvas>
     </div>
     <div id="game">
         <canvas width="600" height="400" id="canvas"></canvas>
@@ -42,14 +49,7 @@
             <textarea id="messageTextArea" placeholder="Hvað ertu að pæla?"></textarea>
         </div>
     </div>
-    <div id="colorPicker"></div>
-    <div id="current-word"></div>
-    <div>
-        <button id="undoButton">Undo</button>
-        <button id="increaseButton">Make bigger</button>
-        <button id="decreaseButton">Make smaller</button>
-    </div>
-    <canvas width="50" height="50" id="previewCanvas"></canvas>
+
     <script src="socket.io.js"></script>
     <script src="globals.js"></script>
     <script src="PencilTool.js"></script>

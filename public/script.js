@@ -64,7 +64,6 @@ var pencilTool = new PencilTool();
 // Local event handlers
 // =============================================================================
 
-var startRoundButton = document.getElementById("startRound");
 var timeLeft = document.getElementById("secondsLeft");
 var guessInput = document.getElementById("guessInput");
 var undoButton = document.getElementById("undoButton");
@@ -83,9 +82,6 @@ decreaseButton.addEventListener('mouseup', function(e) {
     socket.emit('decreaseLineWidth');
 });
 
-startRoundButton.addEventListener('mouseup', function(e) {
-    socket.emit('startRound');
-});
     
 canvas.addEventListener('mousedown', function (e) {
     pencilTool.mouseDown(relativeMousePosition(e));

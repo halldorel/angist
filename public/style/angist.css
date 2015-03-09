@@ -98,6 +98,10 @@ body {
     -webkit-transition: none !important;
 }
 
+#colorPicker, #colorPicker div {
+    display: inline-block;
+} 
+
 .blue {color: rgb(92, 140, 201)};
 .teal {color: rgb(69, 214, 187)}; 
 .yellow {color: rgb(224, 212, 85)};
