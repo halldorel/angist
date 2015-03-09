@@ -115,9 +115,7 @@ var currentDrawer = null;
 // User auth
 // =============================================================================
 
-
-
-var LocalStrategy   = require('passport-local').Strategy;
+var LocalStrategy = require('passport-local').Strategy;
 
 passport.serializeUser(function(user, callback) {
     callback(null, user.id);
@@ -143,8 +141,12 @@ passport.use('local-signup', new LocalStrategy({
                 if (user.length) return callback(null, false, req.flash('signupMessage', 'Email address taken'));
                 console.log(2);
                 var newUser = db.User.create({username: email,
-                                             password: db.generateHash(password)});
-                //console.log(newUser);
+                                             password: db.generateHash(password)},
+                function(err, user)
+                {
+                    if (err) return console.error("YO DIS IS WRUNG: " + err);
+                    return console.log(user);
+                });
                 console.log(db.generateHash(password));
             });
         });
