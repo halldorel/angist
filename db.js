@@ -66,7 +66,7 @@ function setUp(err, db) {
         }
     });
 
-    var User = db.define('user', {
+    var User = db.define('users', {
         id: {type: 'serial', key: true},
         username: {type: 'text'},
         password: {type: 'text'}

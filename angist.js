@@ -53,6 +53,67 @@ app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash());            // Allow flash messages stored in session
+
+
+
+// User auth
+// =============================================================================
+
+var LocalStrategy = require('passport-local').Strategy;
+
+passport.serializeUser(function(user, callback) {
+    callback(null, user[0].id);
+});
+
+passport.deserializeUser(function(id, callback) {
+    db.User.get(id, function(err, user) {
+        callback(err, user);
+    });
+});
+
+passport.use('local-signup', new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+        passReqToCallback: true
+    },
+    function(req, email, password, callback) {
+        console.log("local strategy")
+        process.nextTick(function() {
+            db.User.find({username: email}, function(err, user) {
+                if (err) return callback(err);
+                if (user.length) return callback(null, false, req.flash('signupMessage', 'Email address taken'));
+                db.User.create({
+                     username: email,
+                     password: db.generateHash(password)},
+                     function(err, user)
+                     {
+                         if (err) return console.error("YO DIS IS WRUNG: " + err);
+                         return console.log(user);
+                     });
+            });
+        });
+    }
+));
+
+passport.use('local-login', new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+        passReqToCallBack: true
+    },
+    function(email, password, callback) {
+        console.log(email);
+        console.log(password);
+        db.User.find({username: email}, function(err, user) {
+            if (err) return callback(err);
+            console.log(user);
+            if(!user.length)
+                return callback(null, false);
+            if(!user[0].validatePassword(password))
+                return callback(null, false);
+            return callback(null, user);
+        });
+    }
+));
 /*********/
 
 // ===================================
@@ -112,64 +173,7 @@ var currentRound = null;
 var currentWord;
 var currentDrawer = null;
 
-// User auth
-// =============================================================================
 
-var LocalStrategy = require('passport-local').Strategy;
-
-passport.serializeUser(function(user, callback) {
-    callback(null, user.id);
-});
-
-passport.deserializeUser(function(id, callback) {
-    User.get(id, function(err, user) {
-        callback(err, user);
-    });
-});
-
-passport.use('local-signup', new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password',
-        passReqToCallback: true
-    },
-    function(req, email, password, callback) {
-        console.log("local strategy")
-        process.nextTick(function() {
-            db.User.find({username: email}, function(err, user) {
-                if (err) return callback(err);
-                console.log(user.length);
-                if (user.length) return callback(null, false, req.flash('signupMessage', 'Email address taken'));
-                console.log(2);
-                var newUser = db.User.create({username: email,
-                                             password: db.generateHash(password)},
-                function(err, user)
-                {
-                    if (err) return console.error("YO DIS IS WRUNG: " + err);
-                    return console.log(user);
-                });
-                console.log(db.generateHash(password));
-            });
-        });
-    }
-));
-
-passport.use('local-login', new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password',
-        passReqToCallBack: true
-    },
-    function(req, email, password, callback) {
-        db.User.find({username: email}, function(err, user) {
-            if (err) return callback(err);
-            if(!user)
-                return callback(null, false, req.flash('loginMessage', 'No user with this email address'));
-            if(!user[0].validatePassword(password))
-                return callback(null, false, req.flash('loginMessage', 'Wrong password'));
-            console.log(user);
-            return callback(null, user);
-        });
-    }
-));
 
 
 
