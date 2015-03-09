@@ -19,6 +19,13 @@ body {
     border-radius: 5px;
 }
 
+
+#previewCanvas {
+    border: 1px solid #cecece;
+    margin-bottom: 4px;
+    border-radius: 5px;
+}
+
 #chat {
     height: 470px;
     margin-left: 610px;
