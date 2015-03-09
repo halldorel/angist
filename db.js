@@ -12,11 +12,13 @@
 // =============================================================================
 exports.Word = null;
 exports.Category = null;
+exports.User = null;
 
 
 // Setup
 // =============================================================================
 var orm = require('orm');
+var bcrypt = require('bcrypt-nodejs');
 
 // Connect to a non-development database when NODE_ENV = 'production'
 var db;
@@ -64,6 +66,18 @@ function setUp(err, db) {
         }
     });
 
+    var User = db.define('user', {
+        id: {type: 'serial', key: true},
+        username: {type: 'text'},
+        password: {type: 'text'}
+    }, {
+        methods: {
+            validatePassword: function(password) {
+                return bcrypt.compareSync(password, this.password);
+            }
+        }
+    });
+
 
     /*****************
      *               *
@@ -90,6 +104,11 @@ function setUp(err, db) {
         exports.Word = Word;
     });
 
+    User.sync(function(err) {
+        if (err) return printError(err);
+        exports.User = User;
+    });
+
 
     /********************
      *                  *
@@ -108,6 +127,10 @@ function setUp(err, db) {
                 callback({word: "Empty word table."});
             }
         });
+    };
+
+    exports.generateHash = function(password) {
+        return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
     };
 }
 

@@ -16,6 +16,18 @@ var db = require('./db');
 
 var round   = require('./round');
 
+// User auth
+// TODO: Move to another file
+/*********/
+var passport = require('passport');
+var flash    = require('connect-flash');
+
+var morgan       = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser   = require('body-parser');
+var session      = require('express-session');
+/*********/
+
 // Setup
 // =============================================================================
 var app = express();
@@ -30,6 +42,23 @@ app.set('views', __dirname + '/views');
 app.set('title', 'Angist');
 app.set('view options', {layout: false});
 
+// User auth
+// TODO: Move to another file
+/*********/
+app.use(morgan('dev'));  // Log all http requests
+app.use(cookieParser()); // Cookies for auth
+app.use(bodyParser());   // Parsing html forms
+
+app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash());            // Allow flash messages stored in session
+/*********/
+
+// ===================================
+// TODO:
+// Offload routing to a separate file.
+// ===================================
 // Routing
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/views/index.html');
@@ -38,6 +67,37 @@ app.get('/', function (req, res) {
 app.get('/add-words', function (req, res) {
     res.sendFile(__dirname + '/views/add_words.html');
 });
+
+app.get('/login', function(req, res) {
+    res.sendFile(__dirname + '/views/login.html');
+});
+
+app.post('/login', passport.authenticate('local-login', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true
+}));
+
+app.get('/signup', function(req, res) {
+    res.sendFile(__dirname + '/views/signup.html');
+});
+
+app.post('/signup', passport.authenticate('local-signup', {
+    successRedirect: '/login',
+    failureRedirect: '/signup',
+    failureFlash: true
+}));
+
+
+// route middleware to make sure a user is logged in
+function isLoggedIn(req, res, next) {
+    // If user is authenticated in the session, carry on
+    if (req.isAuthenticated())
+        return next();
+
+    // Iff they aren't redirect them to the login page
+    res.redirect('/login');
+}
 
 app.use(express.static(__dirname + '/public'));
 
@@ -54,22 +114,60 @@ var currentDrawer = null;
 
 // User auth
 // =============================================================================
-var passport = require('passport');
-var flash    = require('connect-flash');
 
-var morgan       = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser   = require('body-parser');
-var session      = require('express-session');
 
-app.use(morgan('dev'));  // Log all http requests
-app.use(cookieParser()); // Cookies for auth
-app.use(bodyParser());   // Parsing html forms
 
-app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
-app.use(flash());            // Allow flash messages stored in session
+var LocalStrategy   = require('passport-local').Strategy;
+
+passport.serializeUser(function(user, callback) {
+    callback(null, user.id);
+});
+
+passport.deserializeUser(function(id, callback) {
+    User.get(id, function(err, user) {
+        callback(err, user);
+    });
+});
+
+passport.use('local-signup', new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+        passReqToCallback: true
+    },
+    function(req, email, password, callback) {
+        console.log("local strategy")
+        process.nextTick(function() {
+            db.User.find({username: email}, function(err, user) {
+                if (err) return callback(err);
+                console.log(user.length);
+                if (user.length) return callback(null, false, req.flash('signupMessage', 'Email address taken'));
+                console.log(2);
+                var newUser = db.User.create({username: email,
+                                             password: db.generateHash(password)});
+                //console.log(newUser);
+                console.log(db.generateHash(password));
+            });
+        });
+    }
+));
+
+passport.use('local-login', new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+        passReqToCallBack: true
+    },
+    function(req, email, password, callback) {
+        db.User.find({username: email}, function(err, user) {
+            if (err) return callback(err);
+            if(!user)
+                return callback(null, false, req.flash('loginMessage', 'No user with this email address'));
+            if(!user[0].validatePassword(password))
+                return callback(null, false, req.flash('loginMessage', 'Wrong password'));
+            console.log(user);
+            return callback(null, user);
+        });
+    }
+));
 
 
 
