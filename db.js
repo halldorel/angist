@@ -12,25 +12,25 @@
 // =============================================================================
 exports.Word = null;
 exports.Category = null;
+exports.User = null;
 
 
 // Setup
 // =============================================================================
 var orm = require('orm');
+var bcrypt = require('bcrypt-nodejs');
 
 // Connect to a non-development database when NODE_ENV = 'production'
 var db;
 if (!process.env.NODE_ENV) {
     db = orm.connect("postgres://:@localhost/angist");
-    db.on('connect', function(err, db) {
-        setUp(err, db)
-    });
 } else {
     db = orm.connect(process.env.DATABASE_URL);
-    db.on('connect', function(err, db){
-        setUp(err, db)
-    });
 }
+
+db.on('connect', function(err, db){
+    setUp(err, db)
+});
 
 function setUp(err, db) {
     if (err) return printError(err);
@@ -57,6 +57,23 @@ function setUp(err, db) {
         methods: {
             difficulty: function () {
                 return 1 - (this.guessed / this.played);
+            },
+            update: function(rightGuess) {
+                this.played++;
+                if (rightGuess) this.guessed++;
+                this.save();
+            }
+        }
+    });
+
+    var User = db.define('users', {
+        id: {type: 'serial', key: true},
+        username: {type: 'text'},
+        password: {type: 'text'}
+    }, {
+        methods: {
+            validatePassword: function(password) {
+                return bcrypt.compareSync(password, this.password);
             }
         }
     });
@@ -87,6 +104,11 @@ function setUp(err, db) {
         exports.Word = Word;
     });
 
+    User.sync(function(err) {
+        if (err) return printError(err);
+        exports.User = User;
+    });
+
 
     /********************
      *                  *
@@ -105,6 +127,10 @@ function setUp(err, db) {
                 callback({word: "Empty word table."});
             }
         });
+    };
+
+    exports.generateHash = function(password) {
+        return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
     };
 }
 

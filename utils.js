@@ -6,3 +6,11 @@ exports.pad = function (str, length) {
     }
     return str;
 };
+
+exports.log_object = function(object) {
+    for (var key in object) {
+        if (object.hasOwnProperty(key)) {
+            console.log(key + " -> " + object[key]);
+        }
+    }
+};
