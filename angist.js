@@ -82,8 +82,17 @@ var startRound = function() {
                 setTimeout(startRound, 5000);
               });
               currentRound.start();
-              console.log(currentDrawer);
-              io.to(currentDrawer).emit('newWord', currentWord.word);
+              
+              for(var i in socketIds) {
+                  var user = socketIds[currentDrawer];
+                  if(user == currentDrawer) {
+                      io.to(user).emit('newWord', {word: currentWord.word, drawer:true});
+                  }
+                  else {
+                      io.to(user).emit('newWord', {word: currentWord.word, drawer:false});
+                  }
+              }
+              
               io.emit('startRound');
           }
           else {

@@ -15,21 +15,34 @@
         </div>
     </div>
     <div id="status">
-      <span class="seconds-left-label">Tími eftir: </span><span id="secondsLeft">30</span>
+      <div class="flip-container" id="flip-main">
+        <div class="flipper">
+          <div class="front">
+            Giskaðu nú!
+          </div>
+          <div class="back">
+            <div id="current-word"></div>
+            <canvas width="50" height="50" id="previewCanvas" style="display: none;"></canvas>
       
-      <div id="colorPicker"></div>
-      
-      <div>
-          <button id="undoButton">Mistök</button>
-          <button id="increaseButton">Þykkja pensil</button>
-          <button id="decreaseButton">Grenna pensil</button>
+            <div class="draw-tools">
+              <div id="colorPicker"></div>
+    
+              <div>
+                  <button id="undoButton">Mistök</button>
+                  <button id="increaseButton">Þykkja pensil</button>
+                  <button id="decreaseButton">Grenna pensil</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       
-      <div id="current-word"></div>
-      <canvas width="50" height="50" id="previewCanvas"></canvas>
+      <span id="secondsLeft"></span>
+      
     </div>
     <div id="game">
         <canvas width="600" height="400" id="canvas"></canvas>
+
         <div class="guess">
             <input id="guessInput" placeholder="Hvað er verið að teikna?" />
         </div>

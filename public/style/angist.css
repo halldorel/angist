@@ -1,13 +1,32 @@
 body {
     width: 900px;
     margin: 10px auto;
-    font-size: 14px;
+    font-size: 16px;
     font-family: Helvetica;
 }
-
-#logo {
+    
+#secondsLeft {
+    text-align: center;
+    width: 9%;
+    display: block;
+    background: rgb(69, 214, 187);
+    color: #fff;
+    font-weight: normal;
+    font-size: 36px;
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    -webkit-border-radius: 25px;
+    border-radius: 25px;
+    line-height: 1.6em;
+    right: 0;
+    top: 0;
 }
 
+#status {
+    position: relative;
+    margin-bottom: 10px;
+}
 
 #game {
     float: left;
@@ -109,3 +128,45 @@ body {
 .red {color: rgb(248, 113, 113)};
 .babyblue {color: rgb(110, 201, 241)};
     
+/* entire container, keeps perspective */
+.flip-container {
+	perspective: 1000;
+}
+	/* flip the pane when hovered */
+	.is-drawing {
+		transform: rotateY(180deg);
+	}
+
+.flip-container, .front, .back {
+	width: 90%;
+    height: 50px;
+}
+
+/* flip speed goes here */
+.flipper {
+	transition: 0.6s;
+	transform-style: preserve-3d;
+
+	position: relative;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+	backface-visibility: hidden;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+/* front pane, placed above back */
+.front {
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.back {
+	transform: rotateY(180deg);
+}

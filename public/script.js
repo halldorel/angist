@@ -20,7 +20,8 @@ var events = {
     guess: 'guess',
     undoLastLine: 'undoLastLine',
     increaseLineWidth: 'increaseLineWidth',
-    decreaseLineWidth: 'decreaseLineWidth'
+    decreaseLineWidth: 'decreaseLineWidth',
+    startRound: 'startRound'
 };
 
 var socket = io.connect('', {secure: true});
@@ -130,9 +131,19 @@ socket.on(events.timeUpdate, function(newTime){
     timeLeft.innerHTML = newTime;
 });
 
+socket.on(events.startRound, function(data) {
+    
+});
+
 socket.on(events.newWord, function (data) {
     console.log("new word: ", data);
     document.getElementById('current-word').innerText = data;
+    if(data.drawer === true) {
+        document.getElementById('flip-main').classList.add("isDrawing");
+    }
+    else {
+        document.getElementById('flip-main').classList.remove("isDrawing");
+    }
 });
 
 socket.on(events.colorChange, function(data){
