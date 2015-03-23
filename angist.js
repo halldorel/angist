@@ -85,7 +85,6 @@ passport.use('local-signup', new LocalStrategy({
         passReqToCallback: true
     },
     function(req, email, password, callback) {
-        console.log("local strategy")
         process.nextTick(function() {
             db.User.find({username: email}, function(err, user) {
                 if (err) return callback(err);
@@ -109,11 +108,8 @@ passport.use('local-login', new LocalStrategy({
         passReqToCallBack: true
     },
     function(email, password, callback) {
-        console.log(email);
-        console.log(password);
         db.User.find({username: email}, function(err, user) {
             if (err) return callback(err);
-            console.log(user);
             if(!user.length)
                 return callback(null, false);
             if(!user[0].validatePassword(password))
