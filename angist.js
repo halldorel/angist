@@ -28,6 +28,8 @@ var bodyParser   = require('body-parser');
 var session      = require('express-session');
 /*********/
 
+
+
 // Setup
 // =============================================================================
 var app = express();
@@ -37,6 +39,7 @@ var io = socket.listen(server);
 // Default to port 3000 if environment does not provide a port number.
 var port = process.env.PORT || 3000;
 
+require('./routing')(app, express, passport);
 
 app.set('views', __dirname + '/views');
 app.set('title', 'Angist');
@@ -121,51 +124,7 @@ passport.use('local-login', new LocalStrategy({
 ));
 /*********/
 
-// ===================================
-// TODO:
-// Offload routing to a separate file.
-// ===================================
-// Routing
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/views/index.html');
-});
 
-app.get('/add-words', function (req, res) {
-    res.sendFile(__dirname + '/views/add_words.html');
-});
-
-app.get('/login', function(req, res) {
-    res.sendFile(__dirname + '/views/login.html');
-});
-
-app.post('/login', passport.authenticate('local-login', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: true
-}));
-
-app.get('/signup', function(req, res) {
-    res.sendFile(__dirname + '/views/signup.html');
-});
-
-app.post('/signup', passport.authenticate('local-signup', {
-    successRedirect: '/login',
-    failureRedirect: '/signup',
-    failureFlash: true
-}));
-
-
-// route middleware to make sure a user is logged in
-function isLoggedIn(req, res, next) {
-    // If user is authenticated in the session, carry on
-    if (req.isAuthenticated())
-        return next();
-
-    // Iff they aren't redirect them to the login page
-    res.redirect('/login');
-}
-
-app.use(express.static(__dirname + '/public'));
 
 // Makeshift user mgmt
 var socketIds = [];
@@ -297,7 +256,6 @@ io.on('connection', function(socket) {
     );
     
     socket.on('beginPath', function(point) {
-        console.log("beginPath: ", point);
         io.emit('beginPath', point);
     });
 
@@ -306,13 +264,10 @@ io.on('connection', function(socket) {
         // TODO:
         // Change to broadcast:
 
-        console.log("newPoint: ", point);
-        
         io.emit('newPoint', point);
     });
 
     socket.on('closePath', function(point) {
-        console.log("closePath: ", point);
         io.emit('closePath', point);
     });
 
