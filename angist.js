@@ -49,7 +49,12 @@ app.use(morgan('dev'));  // Log all http requests
 app.use(cookieParser()); // Cookies for auth
 app.use(bodyParser());   // Parsing html forms
 
-app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
+if (!process.env.NODE_ENV) {
+    app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
+} else {
+    app.use(session({secret: process.env.SECRET}));
+}
+
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash());            // Allow flash messages stored in session
