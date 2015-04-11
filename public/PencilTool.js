@@ -3,10 +3,12 @@ function PencilTool() {
     var _newPos = {x: 0, y: 0};
     var _currentPos = {x: 0, y: 0};
     var _isDown = false;
+    var _drawingEnabled = true;
 
     var _kSignificant = 6 ^ 2;
 
     var mouseDown = function (pos) {
+        if (!_drawingEnabled) return;
         _isDown = true;
         _newPos = pos;
         _currentPos = pos;
@@ -14,6 +16,7 @@ function PencilTool() {
     };
 
     var mouseUp = function (pos) {
+        if (!_drawingEnabled) return;
         _currentPos = pos;
         _isDown = false;
         _sendFinalToServer();
@@ -29,6 +32,7 @@ function PencilTool() {
     };
 
     var didMoveTo = function (pos) {
+        if (!_drawingEnabled) return;
         _newPos = pos;
         if (_hasMovedSignificantly()) {
             _conformToNewMouseCoordinates();
@@ -54,11 +58,20 @@ function PencilTool() {
     var _sendFinalToServer = function () {
         socket.emit(events.closePath, _currentPos);
     };
-
+    
+    var enable = function () {
+        _drawingEnabled = true;
+    };
+    
+    var disable = function () {
+        _drawingEnabled = false;
+    };
     return {
         mouseDown: mouseDown,
         mouseUp: mouseUp,
         isDown: isDown,
-        didMoveTo: didMoveTo
+        didMoveTo: didMoveTo,
+        enable: enable,
+        disable: disable
     };
 }

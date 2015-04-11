@@ -62,6 +62,7 @@ var guessDisplay = GuessDisplay("guessDisplay");
 var currentPath = makeNewPath();
 
 var pencilTool = new PencilTool();
+pencilTool.disable();
 
 // Local event handlers
 // =============================================================================
@@ -134,11 +135,18 @@ socket.on(events.timeUpdate, function(newTime){
 
 socket.on(events.startRound, function(data) {
     paths = [];
+    currentPath = makeNewPath();
+});
+
+socket.on(events.roundEnded, function(data) {
+    pencilTool.disable();
 });
 
 socket.on(events.newWord, function (data) {
-    console.log("new word: ", data);
-    document.getElementById('current-word').innerText = data.word;
+    if(data.drawer === true) {
+        document.getElementById('current-word').innerText = data.word;
+        pencilTool.enable();
+    }
     if(data.drawer === true) {
         document.getElementById('flip-main').classList.add("is-drawing");
     }
@@ -180,6 +188,15 @@ function renderPath(path) {
     }
     ctx.stroke();
     ctx.closePath();
+}
+
+function flashColor(id, color) {
+    var el = document.getElementById(id);
+    var classNameTemp = el.className;
+    el.className = "flash " + color + classNameTemp;
+    setTimeout(function(){
+        el.className = classNameTemp;
+    }, 20);
 }
 
 function drawPreview(){
