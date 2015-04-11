@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style/angist.css" type="text/css" media="screen">
 </head>
 <body>
-
+<div id="container">
     <div id="header">
         <img src="angist.png" id="logo" width="150" height="150" alt="angist">
         <div id="guessDisplay">
@@ -21,6 +21,7 @@
             Giskaðu nú!
           </div>
           <div class="back">
+            Þú átt að teikna: 
             <div id="current-word"></div>
             <canvas width="50" height="50" id="previewCanvas" style="display: none;"></canvas>
       
@@ -62,6 +63,7 @@
             <textarea id="messageTextArea" placeholder="Hvað ertu að pæla?"></textarea>
         </div>
     </div>
+  </div>
 
     <script src="socket.io.js"></script>
     <script src="globals.js"></script>

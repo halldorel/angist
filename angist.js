@@ -16,6 +16,20 @@ var db = require('./db');
 
 var round   = require('./round');
 
+// User auth
+// TODO: Move to another file
+/*********/
+var passport = require('passport');
+var flash    = require('connect-flash');
+
+var morgan       = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser   = require('body-parser');
+var session      = require('express-session');
+/*********/
+
+
+
 // Setup
 // =============================================================================
 var app = express();
@@ -25,21 +39,88 @@ var io = socket.listen(server);
 // Default to port 3000 if environment does not provide a port number.
 var port = process.env.PORT || 3000;
 
+require('./routing')(app, express, passport);
 
 app.set('views', __dirname + '/views');
 app.set('title', 'Angist');
 app.set('view options', {layout: false});
 
-// Routing
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/views/index.html');
+// User auth
+// TODO: Move to another file
+/*********/
+app.use(morgan('dev'));  // Log all http requests
+app.use(cookieParser()); // Cookies for auth
+app.use(bodyParser());   // Parsing html forms
+
+if (!process.env.NODE_ENV) {
+    app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
+} else {
+    app.use(session({secret: process.env.SECRET}));
+}
+
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash());            // Allow flash messages stored in session
+
+
+
+// User auth
+// =============================================================================
+
+var LocalStrategy = require('passport-local').Strategy;
+
+passport.serializeUser(function(user, callback) {
+    callback(null, user[0].id);
 });
 
-app.get('/add-words', function (req, res) {
-    res.sendFile(__dirname + '/views/add_words.html');
+passport.deserializeUser(function(id, callback) {
+    db.User.get(id, function(err, user) {
+        callback(err, user);
+    });
 });
 
-app.use(express.static(__dirname + '/public'));
+passport.use('local-signup', new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+        passReqToCallback: true
+    },
+    function(req, email, password, callback) {
+        process.nextTick(function() {
+            db.User.find({username: email}, function(err, user) {
+                if (err) return callback(err);
+                if (user.length) return callback(null, false, req.flash('signupMessage', 'Email address taken'));
+                db.User.create({
+                     username: email,
+                     password: db.generateHash(password)},
+                     function(err, user)
+                     {
+                         if (err) return console.error("YO DIS IS WRUNG: " + err);
+                         return console.log(user);
+                     });
+            });
+        });
+    }
+));
+
+passport.use('local-login', new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+        passReqToCallBack: true
+    },
+    function(email, password, callback) {
+        db.User.find({username: email}, function(err, user) {
+            if (err) return callback(err);
+            if(!user.length)
+                return callback(null, false);
+            if(!user[0].validatePassword(password))
+                return callback(null, false);
+            return callback(null, user);
+        });
+    }
+));
+/*********/
+
+
 
 // Makeshift user mgmt
 var socketIds = [];
@@ -72,11 +153,12 @@ var roundEndedCallback = function(results) {
 var startRound = function() {
   if(currentRound == null) {
       setRandomDrawer();
-      
+      console.log("Socket ids: "+socketIds);
       console.log("Starting round ...")
       db.pickWord(function(word) {
           if(word) {
               currentWord = word;
+              console.log(currentWord.word);
               currentRound = round.newRound(currentWord.word, timerCallback, function(){
                 roundEndedCallback();
                 setTimeout(startRound, 5000);
@@ -84,7 +166,7 @@ var startRound = function() {
               currentRound.start();
               
               for(var i in socketIds) {
-                  var user = socketIds[currentDrawer];
+                  var user = socketIds[i];
                   if(user == currentDrawer) {
                       io.to(user).emit('newWord', {word: currentWord.word, drawer:true});
                   }
@@ -183,7 +265,6 @@ io.on('connection', function(socket) {
     );
     
     socket.on('beginPath', function(point) {
-        console.log("beginPath: ", point);
         io.emit('beginPath', point);
     });
 
@@ -192,13 +273,10 @@ io.on('connection', function(socket) {
         // TODO:
         // Change to broadcast:
 
-        console.log("newPoint: ", point);
-        
         io.emit('newPoint', point);
     });
 
     socket.on('closePath', function(point) {
-        console.log("closePath: ", point);
         io.emit('closePath', point);
     });
 

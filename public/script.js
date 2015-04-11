@@ -21,7 +21,8 @@ var events = {
     undoLastLine: 'undoLastLine',
     increaseLineWidth: 'increaseLineWidth',
     decreaseLineWidth: 'decreaseLineWidth',
-    startRound: 'startRound'
+    startRound: 'startRound',
+    roundEnded : 'roundEnded'
 };
 
 var socket = io.connect('', {secure: true});
@@ -132,17 +133,17 @@ socket.on(events.timeUpdate, function(newTime){
 });
 
 socket.on(events.startRound, function(data) {
-    
+    paths = [];
 });
 
 socket.on(events.newWord, function (data) {
     console.log("new word: ", data);
-    document.getElementById('current-word').innerText = data;
+    document.getElementById('current-word').innerText = data.word;
     if(data.drawer === true) {
-        document.getElementById('flip-main').classList.add("isDrawing");
+        document.getElementById('flip-main').classList.add("is-drawing");
     }
     else {
-        document.getElementById('flip-main').classList.remove("isDrawing");
+        document.getElementById('flip-main').classList.remove("is-drawing");
     }
 });
 

@@ -1,26 +1,33 @@
 body {
-    width: 900px;
-    margin: 10px auto;
-    font-size: 16px;
+    
+    margin: 0px;
+    font-size: 18px;
     font-family: Helvetica;
+}
+    
+#container
+{
+    width: 900px;
+    position: relative;
+    margin: 20px auto;
+    
 }
     
 #secondsLeft {
     text-align: center;
-    width: 9%;
     display: block;
     background: rgb(69, 214, 187);
     color: #fff;
     font-weight: normal;
-    font-size: 36px;
+    font-size: 52px;
     position: absolute;
-    height: 50px;
-    width: 50px;
-    -webkit-border-radius: 25px;
-    border-radius: 25px;
+    height: 80px;
+    width: 80px;
+    -webkit-border-radius: 80px;
+    border-radius: 80px;
     line-height: 1.6em;
     right: 0;
-    top: 0;
+    top: 30px;
 }
 
 #status {
@@ -29,7 +36,9 @@ body {
 }
 
 #game {
-    float: left;
+    position: relative;
+    top: 70px;
+    left: 0px;
 }
 
 #canvas {
@@ -38,7 +47,6 @@ body {
     border-radius: 5px;
 }
 
-
 #previewCanvas {
     border: 1px solid #cecece;
     margin-bottom: 4px;
@@ -46,8 +54,11 @@ body {
 }
 
 #chat {
-    height: 470px;
-    margin-left: 610px;
+    height: 400px;
+    position: absolute;
+    right: 0px;
+    top: 304px;
+    width: 30%;
     border: 1px solid #cecece;
     border-radius: 5px;
     display: flex;
@@ -64,6 +75,7 @@ body {
     border-top: 1px solid #cecece;
     display: flex;
     flex-direction: row;
+    background: none;
 }
 
 #messageTextArea {
@@ -82,6 +94,7 @@ body {
     display: flex;
     flex-direction: row;
     font-size: 1.5em;
+    margin-top: 20px;
 }
 
 #guessTextArea {
@@ -92,7 +105,6 @@ body {
 }
 
 #guessDisplay {
-    border: 1px solid #cecece;
     width: 600px;
     height: 140px;
     float: right;
@@ -118,7 +130,8 @@ body {
 }
 
 #colorPicker, #colorPicker div {
-    display: inline-block;
+    display: none;
+    
 } 
 
 .blue {color: rgb(92, 140, 201)};
@@ -133,40 +146,54 @@ body {
 	perspective: 1000;
 }
 	/* flip the pane when hovered */
-	.is-drawing {
-		transform: rotateY(180deg);
+	#flip-main.is-drawing .flipper, #flip-main.is-drawing .flipper/*, 
+    #flip-main .flipper:hover, #flip-main .flipper:hover*/ {
+		transform: rotateX(-180deg);
 	}
 
 .flip-container, .front, .back {
-	width: 90%;
-    height: 50px;
+	width: 562px;
+    height: 70px;
 }
 
 /* flip speed goes here */
 .flipper {
 	transition: 0.6s;
 	transform-style: preserve-3d;
-
-	position: relative;
+    transform-origin: 100% 55px;
+    position: absolute;
+    top: 15px;
 }
 
 /* hide back of pane during swap */
 .front, .back {
 	backface-visibility: hidden;
-
 	position: absolute;
 	top: 0;
 	left: 0;
+    padding: 20px;
+    font-size: 1.5em;
+    color: #fff;
+    border-radius: 5px;
+}
+
+.wrong {
+    background: rgb(248, 113, 113);
+    -webkit-transition: background 1.0s ease-in-out;
 }
 
 /* front pane, placed above back */
 .front {
-	z-index: 2;
+    z-index: 2;
+    background: rgb(92, 140, 201);
+    box-shadow: 3px solid rgba(0, 0, 0, 0.3);
 	/* for firefox 31 */
-	transform: rotateY(0deg);
+    transform: rotateX(0deg);
+    text-align: center;
 }
 
 /* back, initially hidden pane */
 .back {
-	transform: rotateY(180deg);
+	transform: rotateX(-180deg);
+    background: rgb(69, 214, 187);
 }
