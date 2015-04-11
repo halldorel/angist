@@ -171,7 +171,7 @@ var startRound = function() {
                       io.to(user).emit('newWord', {word: currentWord.word, drawer:true});
                   }
                   else {
-                      io.to(user).emit('newWord', {word: currentWord.word, drawer:false});
+                      io.to(user).emit('newWord', {drawer:false});
                   }
               }
               
