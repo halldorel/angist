@@ -1,6 +1,6 @@
 module.exports.newRound = function(word, timerCallback, roundEndedCallback, time) {
     var word = word || "typpi";
-    var timeLeft = time || 30;
+    var timeLeft = time || 2;
     var timerCallback = timerCallback;
     var roundEndedCallback = roundEndedCallback;
     

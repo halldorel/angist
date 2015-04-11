@@ -20,7 +20,9 @@ var events = {
     guess: 'guess',
     undoLastLine: 'undoLastLine',
     increaseLineWidth: 'increaseLineWidth',
-    decreaseLineWidth: 'decreaseLineWidth'
+    decreaseLineWidth: 'decreaseLineWidth',
+    startRound: 'startRound',
+    roundEnded : 'roundEnded'
 };
 
 var socket = io.connect('', {secure: true});
@@ -60,11 +62,11 @@ var guessDisplay = GuessDisplay("guessDisplay");
 var currentPath = makeNewPath();
 
 var pencilTool = new PencilTool();
+pencilTool.disable();
 
 // Local event handlers
 // =============================================================================
 
-var startRoundButton = document.getElementById("startRound");
 var timeLeft = document.getElementById("secondsLeft");
 var guessInput = document.getElementById("guessInput");
 var undoButton = document.getElementById("undoButton");
@@ -83,9 +85,6 @@ decreaseButton.addEventListener('mouseup', function(e) {
     socket.emit('decreaseLineWidth');
 });
 
-startRoundButton.addEventListener('mouseup', function(e) {
-    socket.emit('startRound');
-});
     
 canvas.addEventListener('mousedown', function (e) {
     pencilTool.mouseDown(relativeMousePosition(e));
@@ -134,9 +133,26 @@ socket.on(events.timeUpdate, function(newTime){
     timeLeft.innerHTML = newTime;
 });
 
+socket.on(events.startRound, function(data) {
+    paths = [];
+    currentPath = makeNewPath();
+});
+
+socket.on(events.roundEnded, function(data) {
+    pencilTool.disable();
+});
+
 socket.on(events.newWord, function (data) {
-    console.log("new word: ", data);
-    document.getElementById('current-word').innerText = data;
+    if(data.drawer === true) {
+        document.getElementById('current-word').innerText = data.word;
+        pencilTool.enable();
+    }
+    if(data.drawer === true) {
+        document.getElementById('flip-main').classList.add("is-drawing");
+    }
+    else {
+        document.getElementById('flip-main').classList.remove("is-drawing");
+    }
 });
 
 socket.on(events.colorChange, function(data){
@@ -172,6 +188,15 @@ function renderPath(path) {
     }
     ctx.stroke();
     ctx.closePath();
+}
+
+function flashColor(id, color) {
+    var el = document.getElementById(id);
+    var classNameTemp = el.className;
+    el.className = "flash " + color + classNameTemp;
+    setTimeout(function(){
+        el.className = classNameTemp;
+    }, 20);
 }
 
 function drawPreview(){

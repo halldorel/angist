@@ -135,31 +135,63 @@ var currentRound = null;
 var currentWord;
 var currentDrawer = null;
 
+function setRandomDrawer() {
+    // *bleugh*
+    var randomIndex = Math.floor(Math.random() * socketIds.length);
+    currentDrawer = socketIds[randomIndex];
+    console.log("Current drawer: ", currentDrawer);
+}
 
+var timerCallback = function(secondsLeft) {
+    io.emit("timeUpdate", secondsLeft);
+};
 
+var roundEndedCallback = function(results) {
+    io.emit("roundEnded", results);
+    console.log("roundEnded", results);
+    currentRound = null;
+};
 
+var startRound = function() {
+  if(currentRound == null) {
+      setRandomDrawer();
+      console.log("Socket ids: "+socketIds);
+      console.log("Starting round ...")
+      db.pickWord(function(word) {
+          if(word) {
+              currentWord = word;
+              console.log(currentWord.word);
+              currentRound = round.newRound(currentWord.word, timerCallback, function(){
+                roundEndedCallback();
+                setTimeout(startRound, 5000);
+              });
+              currentRound.start();
+              
+              for(var i in socketIds) {
+                  var user = socketIds[i];
+                  if(user == currentDrawer) {
+                      io.to(user).emit('newWord', {word: currentWord.word, drawer:true});
+                  }
+                  else {
+                      io.to(user).emit('newWord', {drawer:false});
+                  }
+              }
+              
+              io.emit('startRound');
+          }
+          else {
+              console.error("Erroneous attempt at word yielding.")
+          }
+      });
+  }
+};
+
+var firstConnection = true;
 
 // Connection
 // =============================================================================
 io.on('connection', function(socket) {
     socketIds.push(socket.id);
-    
-    function setRandomDrawer() {
-        // *bleugh*
-        var randomIndex = Math.floor(Math.random() * socketIds.length);
-        currentDrawer = socketIds[randomIndex];
-        console.log("Current drawer: ", currentDrawer);
-    }
-
-    var timerCallback = function(secondsLeft) {
-        io.emit("timeUpdate", secondsLeft);
-    };
-    
-    var roundEndedCallback = function(results) {
-        io.emit("roundEnded", results);
-        console.log("roundEnded", results);
-        currentRound = null;
-    };
 
     socket.on('guess', function(guess) {
             console.log(socket.id, "guessed", guess);
@@ -172,29 +204,10 @@ io.on('connection', function(socket) {
         }
     });
     
-    socket.on('startRound', function() {
-        // TODO: Check first if the user can start a round
-        console.log("startRound");
-        if(currentRound == null) {
-            
-            setRandomDrawer();
-            
-            console.log("Starting round ...")
-            db.pickWord(function(word) {
-                if(word) {
-                    currentWord = word;
-                    currentRound = round.newRound(currentWord.word, timerCallback, roundEndedCallback);
-                    currentRound.start();
-                    console.log(currentDrawer);
-                    io.to(currentDrawer).emit('newWord', currentWord.word);
-                }
-                else {
-                    console.error("Erroneous attempt at word yielding.")
-                }
-            });
-        }
-    });
-
+    if(firstConnection) {
+        firstConnection = false;
+        startRound();
+    }
 
 
 // Temporary:
