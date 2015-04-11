@@ -1,3 +1,7 @@
+"use strict";
+/*
+ *  Routing strategies for angist.js
+ */
 module.exports = function(app, express, passport) {
     app.get('/', function (req, res) {
         res.sendFile(__dirname + '/views/index.html');

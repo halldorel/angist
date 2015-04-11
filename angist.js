@@ -48,13 +48,15 @@ app.set('view options', {layout: false});
 // User auth
 // TODO: Move to another file
 /*********/
-app.use(morgan('dev'));  // Log all http requests
+app.use(morgan('dev'));  // Log all http requests in development
 app.use(cookieParser()); // Cookies for auth
 app.use(bodyParser());   // Parsing html forms
 
 if (!process.env.NODE_ENV) {
+    // If no .env available (i.e. in development)
     app.use(session({secret: 'iamadevelopmentsecretpleasedontusemeinproduction'}));
 } else {
+    // If .env available (i.e. in production)
     app.use(session({secret: process.env.SECRET}));
 }
 
