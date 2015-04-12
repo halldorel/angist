@@ -4,8 +4,14 @@ var previewCanvas = document.getElementById("previewCanvas");
 var ctx = canvas.getContext("2d");
 var preview = previewCanvas.getContext("2d");
 
+var clock = document.getElementById("secondsLeft");
+
 var _lineWidth = 3;
 var selectedColor = 'teal';
+
+// Temporary hack to memorize whether user is drawing or not
+// in this round.
+var userIsDrawer = false;
 
 // Use this dictionary for server event names 
 var events = {
@@ -84,7 +90,6 @@ increaseButton.addEventListener('mouseup', function(e) {
 decreaseButton.addEventListener('mouseup', function(e) {
     socket.emit('decreaseLineWidth');
 });
-
     
 canvas.addEventListener('mousedown', function (e) {
     pencilTool.mouseDown(relativeMousePosition(e));
@@ -108,8 +113,16 @@ canvas.addEventListener('mouseleave', function (e) {
 
 guessInput.addEventListener('keydown', function(e) {
     if(e.keyCode == '13') {
-        socket.emit(events.guess, guessInput.value);
-        guessInput.value = '';
+        // FIXME
+        if(userIsDrawer === false)
+        {
+            socket.emit(events.guess, guessInput.value);
+            guessInput.value = '';
+        }
+        else
+        {
+            flashColor(guessInput, "wrong");
+        }
     }
 });
 
@@ -134,20 +147,22 @@ socket.on(events.timeUpdate, function(newTime){
 });
 
 socket.on(events.startRound, function(data) {
+
+    clock.classList.remove("timeout");
     paths = [];
     currentPath = makeNewPath();
 });
 
 socket.on(events.roundEnded, function(data) {
+    clock.classList.add("timeout");
     pencilTool.disable();
 });
 
 socket.on(events.newWord, function (data) {
-    if(data.drawer === true) {
+    userIsDrawer = data.drawer;
+    if(userIsDrawer === true) {
         document.getElementById('current-word').innerText = data.word;
         pencilTool.enable();
-    }
-    if(data.drawer === true) {
         document.getElementById('flip-main').classList.add("is-drawing");
     }
     else {
@@ -190,13 +205,11 @@ function renderPath(path) {
     ctx.closePath();
 }
 
-function flashColor(id, color) {
-    var el = document.getElementById(id);
-    var classNameTemp = el.className;
-    el.className = "flash " + color + classNameTemp;
+function flashColor(el, color) {
+    el.classList.add(color + " flash");
     setTimeout(function(){
-        el.className = classNameTemp;
-    }, 20);
+        el.classList.remove(color);
+    }, 200);
 }
 
 function drawPreview(){

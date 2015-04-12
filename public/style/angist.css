@@ -177,9 +177,18 @@ body {
     border-radius: 5px;
 }
 
+.flash {
+    
+}
+
 .wrong {
-    background: rgb(248, 113, 113);
     -webkit-transition: background 1.0s ease-in-out;
+    transition: background 1.0s ease-in-out;
+    background: rgb(248, 113, 113) !important;
+}
+
+.timeout {
+    background: rgb(248, 113, 113) !important;
 }
 
 /* front pane, placed above back */
