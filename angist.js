@@ -13,6 +13,7 @@ var socket = require('socket.io');
 // Angist modules
 var utils = require('./utils');
 var db = require('./db');
+var rng = require('./name-generator');
 
 var round   = require('./round');
 
@@ -248,7 +249,8 @@ io.on('connection', function(socket) {
 
     socket.on('setUsername', function(username) {
             // If user is changing their name
-        console.log(username);
+            console.log(username);
+            if (username == "") username = rng.random();
             if (loggedIn) {
                 socket.broadcast.emit('userLeft', {
                     username: socket.username,
