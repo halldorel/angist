@@ -132,12 +132,17 @@ server.listen(port);
 var currentRound = null;
 var currentWord;
 var currentDrawer = null;
+var lastCorrectGuesser = null;
 
 function setRandomDrawer() {
     // *bleugh*
     var randomIndex = Math.floor(Math.random() * socketIds.length);
     currentDrawer = socketIds[randomIndex];
     console.log("Current drawer: ", currentDrawer);
+}
+
+function setDrawer(socketId) {
+    currentDrawer = socketId;
 }
 
 var timerCallback = function(secondsLeft) {
@@ -152,7 +157,13 @@ var roundEndedCallback = function(results) {
 
 var startRound = function() {
   if(currentRound == null) {
-      setRandomDrawer();
+      if(lastCorrectGuesser === null) {
+          setRandomDrawer();
+      }
+      else {
+          setDrawer(lastCorrectGuesser);
+      }
+          
       console.log("Socket ids: "+socketIds);
       console.log("Starting round ...")
       db.pickWord(function(word) {
@@ -194,10 +205,12 @@ io.on('connection', function(socket) {
     socket.on('guess', function(guess) {
             console.log(socket.id, "guessed", guess);
         if(currentRound !== null) {
-            currentRound.guess(guess);
+            var wasCorrect = currentRound.guess(guess);
+            if(wasCorrect === true) lastCorrectGuesser = socket.id;
             io.emit("guess", guess);
         }
         else {
+            lastCorrectGuesser = null;
             console.log("Trying to guess in a non-round. Ignoring.");
         }
     });

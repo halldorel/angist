@@ -20,9 +20,11 @@ module.exports.newRound = function(word, timerCallback, roundEndedCallback, time
             console.log("Currect guess!");
             clearInterval(_timerInterval);
             roundEndedCallback({reason:"correct_guess", correct: word});
+            return true;
         }
         else {
             console.log("Incurrect guess!");
+            return false;
         }
     };
     
