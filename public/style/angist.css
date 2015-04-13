@@ -4,6 +4,11 @@ body {
     font-size: 18px;
     font-family: Helvetica;
 }
+
+* {
+    -webkit-user-select: none;
+    user-select: none;
+}
     
 #container
 {
@@ -130,9 +135,18 @@ body {
 }
 
 #colorPicker, #colorPicker div {
-    display: none;
-    
+    display: inline-block;
+    margin: 1px;
 } 
+#colorPicker {
+    padding: 6px;
+    background: #fff;
+}
+
+.login-box {
+    
+    margin-top: 100px;
+}
 
 .blue {color: rgb(92, 140, 201)};
 .teal {color: rgb(69, 214, 187)}; 
@@ -175,6 +189,10 @@ body {
     font-size: 1.5em;
     color: #fff;
     border-radius: 5px;
+}
+
+#drawTools div {
+    display: inline-block;
 }
 
 .flash {

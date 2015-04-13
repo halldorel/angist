@@ -1,10 +1,7 @@
 var canvas = document.getElementById("canvas");
-var previewCanvas = document.getElementById("previewCanvas");
 
 var ctx = canvas.getContext("2d");
-var preview = previewCanvas.getContext("2d");
 
-var clock = document.getElementById("secondsLeft");
 
 var _lineWidth = 3;
 var selectedColor = 'teal';
@@ -28,7 +25,9 @@ var events = {
     increaseLineWidth: 'increaseLineWidth',
     decreaseLineWidth: 'decreaseLineWidth',
     startRound: 'startRound',
-    roundEnded : 'roundEnded'
+    roundEnded : 'roundEnded',
+    drawerStatus: 'drawerStatus',
+    userAnsweredCorrectly: 'userAnsweredCorrectly'
 };
 
 var socket = io.connect('', {secure: true});
@@ -79,6 +78,11 @@ var undoButton = document.getElementById("undoButton");
 var increaseButton = document.getElementById("increaseButton");
 var decreaseButton = document.getElementById("decreaseButton");
 
+var clock = document.getElementById("secondsLeft");
+var usernameElement = document.getElementById("username");
+var loginButtonElement = document.getElementById("login-button");
+var userMessageElement = document.getElementById("user-message");
+
 undoButton.addEventListener('mouseup', function(e) {
     socket.emit('undoLastLine');
 });
@@ -109,6 +113,7 @@ canvas.addEventListener('mouseover', function (e){
 
 canvas.addEventListener('mouseleave', function (e) {
     document.body.style.cursor = "default";
+    pencilTool.mouseUp(relativeMousePosition(e));
 });
 
 guessInput.addEventListener('keydown', function(e) {
@@ -126,20 +131,39 @@ guessInput.addEventListener('keydown', function(e) {
     }
 });
 
+
+loginButtonElement.addEventListener('mousedown', function(e) {
+    var username = usernameElement.value;
+    socket.emit('setUsername', username);
+    console.log(username);
+    usernameElement.innerHTML = "Skráður inn sem: " + username;
+});
+
+usernameElement.addEventListener('keydown', function(e) {
+    if(e.keyCode == '13') {
+        var username = e.target.value;
+        socket.emit('setUsername', username);
+        usernameElement.innerHTML = "Skráður inn sem: " + username;
+    }
+});
+
 // Network event handlers
 // =============================================================================
 socket.on(events.beginPath, function (data) {
     currentPath.points.push(data);
+    render();
 });
 
 socket.on(events.newPoint, function (data) {
     currentPath.points.push(data);
+    render();
 });
 
 socket.on(events.closePath, function (data) {
     currentPath.points.push(data);
     paths.push(currentPath);
     currentPath = makeNewPath();
+    render();
 });
 
 socket.on(events.timeUpdate, function(newTime){
@@ -147,7 +171,6 @@ socket.on(events.timeUpdate, function(newTime){
 });
 
 socket.on(events.startRound, function(data) {
-
     clock.classList.remove("timeout");
     paths = [];
     currentPath = makeNewPath();
@@ -156,6 +179,14 @@ socket.on(events.startRound, function(data) {
 socket.on(events.roundEnded, function(data) {
     clock.classList.add("timeout");
     pencilTool.disable();
+});
+
+socket.on(events.drawerStatus, function(data) {
+    userMessageElement.innerHTML = "Giskaðu á hvað <strong>" + data.username + "</strong> er að teikna"
+});
+
+socket.on(events.userAnsweredCorrectly, function (data) {
+    userMessageElement.innerHTML = "Þú svaraðir rétt! Búðu þig undir að teikna …";
 });
 
 socket.on(events.newWord, function (data) {
@@ -168,6 +199,7 @@ socket.on(events.newWord, function (data) {
     else {
         document.getElementById('flip-main').classList.remove("is-drawing");
     }
+    render();
 });
 
 socket.on(events.colorChange, function(data){
@@ -181,6 +213,7 @@ socket.on("guess", function(guess) {
 
 socket.on(events.undoLastLine, function() {
     undoLastLine();
+    render();
 })
 
 socket.on(events.increaseLineWidth, function() {
@@ -212,19 +245,6 @@ function flashColor(el, color) {
     }, 200);
 }
 
-function drawPreview(){
-    preview.clearRect(0,0,previewCanvas.width,previewCanvas.height);
-    preview.beginPath();
-    preview.moveTo(25,45);
-    preview.lineTo(25,5);
-
-    preview.lineWidth = _lineWidth;
-    preview.strokeStyle = colors[selectedColor];
-
-    preview.stroke();
-    preview.closePath();
-}
-
 function widthFromDist(from, to) {
     return Math.min(30 / Math.sqrt(Math.abs(to.x - from.x) + Math.abs(to.y - from.y)), 5);
 }
@@ -236,8 +256,7 @@ var render = function () {
     }
 
     renderPath(currentPath);
-    drawPreview();
-    window.requestAnimationFrame(render);
+    //window.requestAnimationFrame(render);
 };
 
 function relativeMousePosition(e) {
@@ -251,4 +270,3 @@ function relativeMousePosition(e) {
 // Canvas rendering kickoff
 
 render();
-window.requestAnimationFrame(render);

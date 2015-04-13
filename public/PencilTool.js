@@ -16,7 +16,7 @@ function PencilTool() {
     };
 
     var mouseUp = function (pos) {
-        if (!_drawingEnabled) return;
+        if (!_drawingEnabled || _isDown === false) return;
         _currentPos = pos;
         _isDown = false;
         _sendFinalToServer();

@@ -163,7 +163,11 @@ var startRound = function() {
       else {
           setDrawer(lastCorrectGuesser);
       }
-          
+      
+      if(users[currentDrawer]) {
+          io.emit('drawerStatus', {username: users[currentDrawer].username});
+      }
+      
       console.log("Socket ids: "+socketIds);
       console.log("Starting round ...")
       db.pickWord(function(word) {
@@ -208,17 +212,18 @@ io.on('connection', function(socket) {
             var wasCorrect = currentRound.guess(guess);
             if(wasCorrect === true) lastCorrectGuesser = socket.id;
             io.emit("guess", guess);
+            for(var i in socketIds) {
+                var user = socketIds[i];
+                if(user == lastCorrectGuesser) {
+                    io.to(user).emit('userAnsweredCorrectly');
+                }
+            }
         }
         else {
             lastCorrectGuesser = null;
             console.log("Trying to guess in a non-round. Ignoring.");
         }
     });
-    
-    if(firstConnection) {
-        firstConnection = false;
-        startRound();
-    }
 
 
 // Temporary:
@@ -243,6 +248,7 @@ io.on('connection', function(socket) {
 
     socket.on('setUsername', function(username) {
             // If user is changing their name
+        console.log(username);
             if (loggedIn) {
                 socket.broadcast.emit('userLeft', {
                     username: socket.username,
@@ -260,20 +266,31 @@ io.on('connection', function(socket) {
             ++numUsers;
             loggedIn = true;
 
-            // Echo welcoming message locally
-            socket.emit('login', {
-                username: socket.username,
-                users: users,
-                numUsers: numUsers
-            });
-            // Echo to logged-in users
-            io.emit('userJoined',
-                    {
-                        username: socket.username,
-                        users: users,
-                        numUsers: numUsers
-                    },
-                    socket.id);
+            // // Echo welcoming message locally
+            // socket.emit('login', {
+            //     username: socket.username,
+            //     users: users,
+            //     numUsers: numUsers
+            // });
+            // // Echo to logged-in users
+            // io.emit('userJoined',
+            //         {
+            //             username: socket.username,
+            //             users: users,
+            //             numUsers: numUsers
+            //         },
+                
+
+                //         socket.id);
+                
+            console.log("Nú eru ", numUsers, " innskráðir.");
+            console.log(users);
+            
+            
+            if(numUsers >= 2 && firstConnection) {
+                firstConnection = false;
+                startRound();
+            }
         }
     );
     
@@ -336,14 +353,14 @@ io.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         // Remove username from global usernames list
-//         if (loggedIn) {
-//             socket.broadcast.emit('userLeft', {
-//                 username: socket.username,
-//                 users: users,
-//                 numUsers: --numUsers
-//             });
-//             delete users[socket.id];
-//         }
+        if (loggedIn) {
+            socket.broadcast.emit('userLeft', {
+                username: socket.username,
+                users: users,
+                numUsers: --numUsers
+            });
+            delete users[socket.id];
+        }
         delete users[socket.id];
     });
 

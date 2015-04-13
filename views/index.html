@@ -17,18 +17,18 @@
     <div id="status">
       <div class="flip-container" id="flip-main">
         <div class="flipper">
-          <div class="front">
-            Giskaðu nú!
+          <div class="front" id="user-message">
+            Beðið eftir fleiri þátttakendum. Það þarf að minnsta kosti tvo!
           </div>
           <div class="back">
-            Þú átt að teikna: 
-            <div id="current-word"></div>
+            <span id="instructions">Þú átt að teikna: </span>
+            <span id="current-word"></span>
             <canvas width="50" height="50" id="previewCanvas" style="display: none;"></canvas>
       
             <div class="draw-tools">
               <div id="colorPicker"></div>
     
-              <div>
+              <div class="mistok">
                   <button id="undoButton">Mistök</button>
                   <button id="increaseButton">Þykkja pensil</button>
                   <button id="decreaseButton">Grenna pensil</button>
@@ -64,6 +64,9 @@
         <div id="message">
             <textarea id="messageTextArea" placeholder="Hvað ertu að pæla?"></textarea>
         </div>
+    </div>
+    <div class="login-box">
+      <input type="text" id="username" placeholder="Notandanafn"/><button id="login-button">Skrá inn</button>
     </div>
   </div>
 
