@@ -27,7 +27,8 @@ var events = {
     startRound: 'startRound',
     roundEnded : 'roundEnded',
     drawerStatus: 'drawerStatus',
-    userAnsweredCorrectly: 'userAnsweredCorrectly'
+    userAnsweredCorrectly: 'userAnsweredCorrectly',
+    timeout: 'timeout'
 };
 
 var socket = io.connect('', {secure: true});
@@ -43,7 +44,6 @@ function increaseLineWidth(){
         _lineWidth++;
         currentPath = makeNewPath();
     }
-    
 }
 
 function decreaseLineWidth(){
@@ -182,11 +182,11 @@ socket.on(events.roundEnded, function(data) {
 });
 
 socket.on(events.drawerStatus, function(data) {
-    userMessageElement.innerHTML = "Giskaðu á hvað <strong>" + data.username + "</strong> er að teikna"
+    showUserMessage("Giskaðu á hvað <strong>" + data.username + "</strong> er að teikna");
 });
 
 socket.on(events.userAnsweredCorrectly, function (data) {
-    userMessageElement.innerHTML = "Þú svaraðir rétt! Búðu þig undir að teikna …";
+    showUserMessage("Þú svaraðir rétt! Búðu þig undir að teikna …");
 });
 
 socket.on(events.newWord, function (data) {
@@ -206,7 +206,7 @@ socket.on(events.colorChange, function(data){
     setSelectedColor(data);
 });
 
-socket.on("guess", function(guess) {
+socket.on(events.guess, function(guess) {
     console.log("Received guess: ", guess);
     guessDisplay.show(guess);
 });
@@ -223,6 +223,17 @@ socket.on(events.increaseLineWidth, function() {
 socket.on(events.decreaseLineWidth, function() {
     decreaseLineWidth();
 });
+
+
+socket.on('timeout', function(data) {
+    if(data.correct) {
+        showUserMessage("Enginn náði að giska á rétt. Orðið var " + data.correct);
+    }
+});
+
+function showUserMessage(message) {
+    userMessageElement.innerHTML = message;
+}
 
 // TODO: Put in a seperate general Path class
 function renderPath(path) {
