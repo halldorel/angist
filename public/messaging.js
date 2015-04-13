@@ -5,22 +5,24 @@
  ********************/
 // Handles message sending and receiving on the front end.
 
-var msgInput = document.getElementById('msgInput');
-var msgSend = document.getElementById('msgSend');
-var messages = document.getElementById('messages');
+var messages = document.getElementById('responseList');
+var textArea = document.getElementById('messageTextArea');
 
 // Events out
 // =============================================================================
 
-msgSend.addEventListener('click', function () {
-    sendMessage(msgInput.value);
-    msgInput.value = '';
+textArea.addEventListener('keyup', function(event) {
+    if (event.keyCode == 13) {
+        sendMessage(textArea.value);
+        textArea.value = '';
+    }
 });
+
 
 // Events in
 // =============================================================================
 
-socket.on(events.receiveMsg, function (data) {
+socket.on('receiveMsg', function(data) {
     renderMessage(data);
 });
 
@@ -30,14 +32,17 @@ socket.on(events.receiveMsg, function (data) {
 
 // Escapes the string in msg and sends it to the server if it is not empty.
 function sendMessage(msg) {
-    if (msg != '') socket.emit(events.sendMsg, escapeHTML(msg);
+    if (msg != '') socket.emit('sendMsg', escapeHTML(msg));
 }
 
 
 function renderMessage(data) {
-    var msgString = data.time + '| ' + data.user + ': ' + data.msg;
-    messages.appendChild(msgString)
+    var li = document.createElement('li');
+    li.innerHTML = data.time + '| ' + data.username + ': ' + data.message;
+    messages.appendChild(li);
 }
+
+
 
 
 // Escapes the input string.

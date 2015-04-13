@@ -322,12 +322,12 @@ io.on('connection', function(socket) {
         socket.broadcast.emit('stopTyping', {username: socket.username});
     });
 
-    socket.on('sendMessage', function(message) {
+    socket.on('sendMsg', function(message) {
         if (socket.isConnectionDropped()) return;
         var date = new Date();
         date = date.getHours() + ":" + utils.pad(date.getMinutes(), 2);
 
-        socket.broadcast.emit('message', {
+        socket.broadcast.emit('receiveMsg', {
             message: message,
             time: date,
             username: socket.username
