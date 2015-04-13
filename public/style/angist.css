@@ -78,16 +78,16 @@ body {
 #message {
     height: 60px;
     border-top: 1px solid #cecece;
-    display: flex;
-    flex-direction: row;
+    display: block;
     background: none;
+    position: relative;
+    
 }
 
 #messageTextArea {
-    flex-grow: 1;
-    flex-shrink: 1;
     border: none;
     margin: 10px;
+    height: 40px;
 }
 
 #guessInput {
@@ -147,6 +147,38 @@ body {
     
     margin-top: 100px;
 }
+
+ul#responseList {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    overflow: scroll;
+    
+}
+
+ul#responseList li {
+    margin: 0px 0px 10px 0px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+ul#responseList li .username {
+    font-size: 1.2em;
+    font-style: bold;
+    margin-bottom: 10px;
+}
+
+ul#responseList li .username .timestamp {
+    font-style: italic;
+    color: #ccc;
+    padding-left: 10px;
+    font-size: 0.8em;
+}
+ul#responseList li:last-child {
+    border: none;
+}
+
+
 
 .blue {color: rgb(92, 140, 201)};
 .teal {color: rgb(69, 214, 187)}; 

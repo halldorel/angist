@@ -7,6 +7,7 @@
 
 var messages = document.getElementById('responseList');
 var textArea = document.getElementById('messageTextArea');
+var messageContainer = document.getElementById('message');
 
 // Events out
 // =============================================================================
@@ -38,8 +39,9 @@ function sendMessage(msg) {
 
 function renderMessage(data) {
     var li = document.createElement('li');
-    li.innerHTML = data.time + '| ' + data.username + ': ' + data.message;
+    li.innerHTML = '<div class="username">' + data.username + '<span class="timestamp">' + data.time + '</span></div><div class="message">' + data.message + '</div>';
     messages.appendChild(li);
+    messages.scrollTop = messages.scrollTop + 300;
 }
 
 

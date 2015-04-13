@@ -327,12 +327,12 @@ io.on('connection', function(socket) {
         var date = new Date();
         date = date.getHours() + ":" + utils.pad(date.getMinutes(), 2);
 
-        socket.broadcast.emit('receiveMsg', {
+        io.emit('receiveMsg', {
             message: message,
             time: date,
             username: socket.username
         });
-        socket.broadcast.emit('stopTyping', {username: socket.username});
+        io.emit('stopTyping', {username: socket.username});
 
         console.log(date + "| " + socket.username + "> " + message);
     });
