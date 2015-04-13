@@ -268,22 +268,6 @@ io.on('connection', function(socket) {
             ++numUsers;
             loggedIn = true;
 
-            // // Echo welcoming message locally
-            // socket.emit('login', {
-            //     username: socket.username,
-            //     users: users,
-            //     numUsers: numUsers
-            // });
-            // // Echo to logged-in users
-            // io.emit('userJoined',
-            //         {
-            //             username: socket.username,
-            //             users: users,
-            //             numUsers: numUsers
-            //         },
-                
-
-                //         socket.id);
                 
             console.log("Nú eru ", numUsers, " innskráðir.");
             console.log(users);
